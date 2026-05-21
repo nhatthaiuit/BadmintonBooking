@@ -6,8 +6,12 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+
+import com.google.android.material.textfield.TextInputEditText;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -20,33 +24,43 @@ public class MainActivity extends AppCompatActivity {
         boolean isLoggedIn = sharedPreferences.getBoolean("isLoggedIn", false);
 
         if (isLoggedIn) {
-            // If already logged in, go directly to HomeActivity
             Intent intent = new Intent(MainActivity.this, HomeActivity.class);
             startActivity(intent);
-            finish(); // Prevent going back to Login
-            return; // Stop onCreate execution
+            finish(); 
+            return; 
         }
 
-        // Start background sync service to simulate data syncing
         Intent serviceIntent = new Intent(this, SyncService.class);
         startService(serviceIntent);
 
         setContentView(R.layout.activity_main);
         
         Button buttonLogin = findViewById(R.id.buttonLogin);
-        buttonLogin.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // Save login status
-                SharedPreferences.Editor editor = sharedPreferences.edit();
-                editor.putBoolean("isLoggedIn", true);
-                editor.apply();
+        TextView textViewRegister = findViewById(R.id.textViewRegister);
+        TextInputEditText editTextPhone = findViewById(R.id.editTextPhone);
+        TextInputEditText editTextPassword = findViewById(R.id.editTextPassword);
 
-                // Navigate to HomeActivity
-                Intent intent = new Intent(MainActivity.this, HomeActivity.class);
-                startActivity(intent);
-                finish(); // Prevent going back to Login
+        buttonLogin.setOnClickListener(v -> {
+            String phone = editTextPhone.getText().toString();
+            String pass = editTextPassword.getText().toString();
+            
+            if(phone.isEmpty() || pass.isEmpty()) {
+                Toast.makeText(this, "Please enter phone and password", Toast.LENGTH_SHORT).show();
+                return;
             }
+
+            SharedPreferences.Editor editor = sharedPreferences.edit();
+            editor.putBoolean("isLoggedIn", true);
+            editor.apply();
+
+            Intent intent = new Intent(MainActivity.this, HomeActivity.class);
+            startActivity(intent);
+            finish();
+        });
+
+        textViewRegister.setOnClickListener(v -> {
+            Intent intent = new Intent(MainActivity.this, RegisterActivity.class);
+            startActivity(intent);
         });
     }
 }

@@ -30,10 +30,19 @@
                 android:textColor="@color/white"
                 android:textSize="20sp"
                 android:textStyle="bold" />
+                
+            <ImageView
+                android:id="@+id/imgHistory"
+                android:layout_width="28dp"
+                android:layout_height="28dp"
+                android:src="@android:drawable/ic_menu_recent_history"
+                app:tint="@color/white"
+                android:layout_marginEnd="16dp"/>
+                
             <ImageView
                 android:id="@+id/imgLogout"
-                android:layout_width="32dp"
-                android:layout_height="32dp"
+                android:layout_width="28dp"
+                android:layout_height="28dp"
                 android:src="@android:drawable/ic_lock_power_off"
                 app:tint="@color/white" />
         </LinearLayout>
@@ -50,7 +59,7 @@
                 android:id="@+id/tvSelectDate"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:background="@color/white"
+                android:background="@drawable/bg_cell_empty"
                 android:textColor="@color/primary_dark"
                 android:text="21/05/2026"
                 android:paddingHorizontal="16dp"
@@ -71,9 +80,9 @@
                     android:layout_height="wrap_content"
                     android:orientation="horizontal">
                     
-                    <RadioButton android:id="@+id/rbBranch1" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="CN NVL" android:textColor="@color/white" android:buttonTint="@color/white" android:checked="true" />
-                    <RadioButton android:id="@+id/rbBranch2" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="CN DQH" android:textColor="@color/white" android:buttonTint="@color/white" android:layout_marginStart="8dp" />
-                    <RadioButton android:id="@+id/rbBranch3" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="CN NQA" android:textColor="@color/white" android:buttonTint="@color/white" android:layout_marginStart="8dp" />
+                    <RadioButton android:id="@+id/rbBranch1" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Branch 1 (Go Vap Dist)" android:textColor="@color/white" android:buttonTint="@color/white" android:checked="true" />
+                    <RadioButton android:id="@+id/rbBranch2" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Branch 2 (Binh Thanh Dist)" android:textColor="@color/white" android:buttonTint="@color/white" android:layout_marginStart="16dp" />
+                    <RadioButton android:id="@+id/rbBranch3" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Branch 3 (Dist 1)" android:textColor="@color/white" android:buttonTint="@color/white" android:layout_marginStart="16dp" />
                     
                 </RadioGroup>
             </HorizontalScrollView>
@@ -85,16 +94,16 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:gravity="end"
-            android:layout_marginTop="8dp">
+            android:layout_marginTop="12dp">
             
-            <View android:layout_width="16dp" android:layout_height="16dp" android:background="@color/status_empty" />
-            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="4dp" android:text="Trống" android:textColor="@color/white" android:textSize="12sp" />
+            <View android:layout_width="16dp" android:layout_height="16dp" android:background="@drawable/bg_cell_empty" />
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="4dp" android:text="Empty" android:textColor="@color/white" android:textSize="12sp" />
             
-            <View android:layout_width="16dp" android:layout_height="16dp" android:layout_marginStart="12dp" android:background="@color/status_booked" />
-            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="4dp" android:text="Đã đặt" android:textColor="@color/white" android:textSize="12sp" />
+            <View android:layout_width="16dp" android:layout_height="16dp" android:layout_marginStart="16dp" android:background="@drawable/bg_cell_booked" />
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="4dp" android:text="Booked" android:textColor="@color/white" android:textSize="12sp" />
             
-            <View android:layout_width="16dp" android:layout_height="16dp" android:layout_marginStart="12dp" android:background="@color/status_pending" />
-            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="4dp" android:text="Đang chọn" android:textColor="@color/white" android:textSize="12sp" />
+            <View android:layout_width="16dp" android:layout_height="16dp" android:layout_marginStart="16dp" android:background="@drawable/bg_cell_selected" />
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="4dp" android:text="Selected" android:textColor="@color/white" android:textSize="12sp" />
         </LinearLayout>
     </LinearLayout>
 
@@ -114,7 +123,7 @@
             android:layout_width="0dp"
             android:layout_weight="1"
             android:layout_height="wrap_content"
-            android:text="Đang chọn: 0 giờ\nTổng: 0 đ"
+            android:text="Selected: 0 hours\nTotal: 0 VND"
             android:textColor="@color/white"
             android:textSize="16sp"
             android:textStyle="bold" />
@@ -123,7 +132,7 @@
             android:id="@+id/btnNext"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Tiếp theo"
+            android:text="Next"
             android:textColor="@color/primary"
             app:backgroundTint="@color/white" />
     </LinearLayout>
@@ -146,9 +155,7 @@
                 android:id="@+id/tableLayoutMatrix"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:background="#DDDDDD"
-                android:showDividers="middle"
-                android:dividerPadding="1dp" />
+                android:background="@android:color/transparent" />
                 
         </HorizontalScrollView>
     </ScrollView>
