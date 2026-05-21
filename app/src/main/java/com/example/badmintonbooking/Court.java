@@ -1,6 +1,8 @@
 package com.example.badmintonbooking;
 
-public class Court {
+import java.io.Serializable;
+
+public class Court implements Serializable {
     private int id;
     private String name;
     private String address;

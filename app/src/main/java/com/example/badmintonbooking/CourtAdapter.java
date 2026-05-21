@@ -39,6 +39,17 @@ public class CourtAdapter extends RecyclerView.Adapter<CourtAdapter.CourtViewHol
                 .load(court.getImageUrl())
                 .placeholder(R.mipmap.ic_launcher) // Show default icon while loading
                 .into(holder.imageViewCourt);
+                
+        // Handle click event on the whole item
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Navigate to CourtDetailActivity and pass the Court object
+                android.content.Intent intent = new android.content.Intent(v.getContext(), CourtDetailActivity.class);
+                intent.putExtra("COURT", court);
+                v.getContext().startActivity(intent);
+            }
+        });
     }
 
     @Override
