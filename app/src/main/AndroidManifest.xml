@@ -32,6 +32,10 @@
         <activity
             android:name=".CourtDetailActivity"
             android:exported="false" />
+            
+        <service
+            android:name=".SyncService"
+            android:exported="false" />
     </application>
 
 </manifest>

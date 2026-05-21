@@ -27,6 +27,10 @@ public class MainActivity extends AppCompatActivity {
             return; // Stop onCreate execution
         }
 
+        // Start background sync service to simulate data syncing
+        Intent serviceIntent = new Intent(this, SyncService.class);
+        startService(serviceIntent);
+
         setContentView(R.layout.activity_main);
         
         Button buttonLogin = findViewById(R.id.buttonLogin);
