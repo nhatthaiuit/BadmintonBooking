@@ -1,3 +1,8 @@
 <resources>
     <string name="app_name">BadmintonBooking</string>
+    <string name="prompt_email">Email</string>
+    <string name="prompt_password">Mật khẩu</string>
+    <string name="action_sign_in">Đăng nhập</string>
+    <string name="action_register">Chưa có tài khoản? Đăng ký ngay</string>
+    <string name="welcome_title">Badminton Booking</string>
 </resources>
