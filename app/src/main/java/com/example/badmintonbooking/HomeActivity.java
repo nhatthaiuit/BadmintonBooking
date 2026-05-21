@@ -66,15 +66,49 @@ public class HomeActivity extends AppCompatActivity {
                     adapter = new CourtAdapter(courts);
                     recyclerView.setAdapter(adapter);
                 } else {
-                    Toast.makeText(HomeActivity.this, "Failed to load data", Toast.LENGTH_SHORT).show();
+                    // Mạng lỗi hoặc link API chết -> Load dữ liệu giả
+                    loadDummyData();
                 }
             }
 
             @Override
             public void onFailure(Call<List<Court>> call, Throwable t) {
                 Log.e("HomeActivity", "API Call Failed: " + t.getMessage());
-                Toast.makeText(HomeActivity.this, "Network error", Toast.LENGTH_SHORT).show();
+                // Mạng lỗi hoặc link API chết -> Load dữ liệu giả
+                loadDummyData();
             }
         });
+    }
+
+    private void loadDummyData() {
+        Toast.makeText(this, "API Failed. Using Offline Mock Data", Toast.LENGTH_SHORT).show();
+        java.util.List<Court> dummyCourts = new java.util.ArrayList<>();
+        
+        Court c1 = new Court();
+        c1.setId(1);
+        c1.setName("Yonex Badminton Court");
+        c1.setAddress("123 Sport Street, District 1");
+        c1.setPricePerHour(15.0);
+        c1.setImageUrl("https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/Badminton_court.png/640px-Badminton_court.png");
+        dummyCourts.add(c1);
+
+        Court c2 = new Court();
+        c2.setId(2);
+        c2.setName("Victor Arena");
+        c2.setAddress("456 Pro Ave, District 3");
+        c2.setPricePerHour(12.5);
+        c2.setImageUrl("https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/Badminton_court.png/640px-Badminton_court.png");
+        dummyCourts.add(c2);
+
+        Court c3 = new Court();
+        c3.setId(3);
+        c3.setName("Lining Center");
+        c3.setAddress("789 Champion Blvd, District 7");
+        c3.setPricePerHour(18.0);
+        c3.setImageUrl("https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/Badminton_court.png/640px-Badminton_court.png");
+        dummyCourts.add(c3);
+
+        adapter = new CourtAdapter(dummyCourts);
+        recyclerView.setAdapter(adapter);
     }
 }
