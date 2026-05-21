@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">BadmintonBooking</string>
+    <string name="app_name">Badminton Booking</string>
     <string name="prompt_email">Email</string>
     <string name="prompt_password">Password</string>
     <string name="action_sign_in">Sign In</string>

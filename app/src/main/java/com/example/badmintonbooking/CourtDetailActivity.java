@@ -5,146 +5,138 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 import androidx.core.content.ContextCompat;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.Manifest;
-import android.app.DatePickerDialog;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
-import android.app.TimePickerDialog;
-import android.content.Context;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
-import android.widget.DatePicker;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.TimePicker;
 import android.widget.Toast;
 
-import com.bumptech.glide.Glide;
-
-import java.util.Calendar;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
 
 public class CourtDetailActivity extends AppCompatActivity {
 
-    private String selectedDate = "";
-    private String selectedTime = "";
-    private Court court;
     private static final String CHANNEL_ID = "booking_channel";
+
+    private RecyclerView recyclerTimeSlots;
+    private RecyclerView recyclerCourtsStatus;
+    private TimeSlotAdapter timeSlotAdapter;
+    private CourtStatusAdapter courtStatusAdapter;
+    
+    private List<TimeSlot> timeSlotsList;
+    private List<CourtStatus> courtsStatusList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_court_detail);
 
-        // Ask for Notification permission on Android 13+
+        // Permissions
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
                 ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.POST_NOTIFICATIONS}, 101);
             }
         }
-
         createNotificationChannel();
 
-        ImageView imageView = findViewById(R.id.imageViewDetail);
-        TextView tvName = findViewById(R.id.textViewDetailName);
-        TextView tvAddress = findViewById(R.id.textViewDetailAddress);
-        TextView tvPrice = findViewById(R.id.textViewDetailPrice);
-        Button btnDate = findViewById(R.id.buttonSelectDate);
-        Button btnTime = findViewById(R.id.buttonSelectTime);
+        ImageView imageViewBack = findViewById(R.id.imageViewBack);
+        recyclerTimeSlots = findViewById(R.id.recyclerViewTimeSlots);
+        recyclerCourtsStatus = findViewById(R.id.recyclerViewCourtsStatus);
         Button btnConfirm = findViewById(R.id.buttonConfirmBooking);
+        TextView tvListLabel = findViewById(R.id.textViewListLabel);
 
-        // Get Data from Intent
-        court = (Court) getIntent().getSerializableExtra("COURT");
-        if (court != null) {
-            tvName.setText(court.getName());
-            tvAddress.setText(court.getAddress());
-            tvPrice.setText("$" + court.getPricePerHour() + " / hour");
-            Glide.with(this).load(court.getImageUrl()).placeholder(R.mipmap.ic_launcher).into(imageView);
+        imageViewBack.setOnClickListener(v -> finish());
+
+        // Khởi tạo danh sách giờ (05:00 - 22:00)
+        timeSlotsList = new ArrayList<>();
+        String[] hours = {"05:00", "06:00", "07:00", "08:00", "09:00", "10:00", "11:00", "12:00", 
+                          "13:00", "14:00", "15:00", "16:00", "17:00", "18:00", "19:00", "20:00", "21:00", "22:00"};
+        for (String h : hours) {
+            timeSlotsList.add(new TimeSlot(h, false));
         }
-
-        // Setup Date Picker
-        btnDate.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Calendar c = Calendar.getInstance();
-                int year = c.get(Calendar.YEAR);
-                int month = c.get(Calendar.MONTH);
-                int day = c.get(Calendar.DAY_OF_MONTH);
-
-                DatePickerDialog datePickerDialog = new DatePickerDialog(CourtDetailActivity.this,
-                        new DatePickerDialog.OnDateSetListener() {
-                            @Override
-                            public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
-                                selectedDate = dayOfMonth + "/" + (monthOfYear + 1) + "/" + year;
-                                btnDate.setText("Date: " + selectedDate);
-                            }
-                        }, year, month, day);
-                datePickerDialog.show();
-            }
+        
+        // Setup Grid Giờ (5 cột giống trong ảnh)
+        recyclerTimeSlots.setLayoutManager(new GridLayoutManager(this, 5));
+        timeSlotAdapter = new TimeSlotAdapter(timeSlotsList, position -> {
+            // Bỏ chọn tất cả
+            for (TimeSlot slot : timeSlotsList) slot.setSelected(false);
+            // Chọn cái được click
+            timeSlotsList.get(position).setSelected(true);
+            timeSlotAdapter.notifyDataSetChanged();
+            
+            // Random trạng thái sân để minh họa khi đổi giờ
+            randomizeCourtStatus();
         });
+        recyclerTimeSlots.setAdapter(timeSlotAdapter);
 
-        // Setup Time Picker
-        btnTime.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Calendar c = Calendar.getInstance();
-                int hour = c.get(Calendar.HOUR_OF_DAY);
-                int minute = c.get(Calendar.MINUTE);
+        // Khởi tạo danh sách sân (Sân 1 - 10)
+        courtsStatusList = new ArrayList<>();
+        for (int i = 1; i <= 10; i++) {
+            courtsStatusList.add(new CourtStatus(i, CourtStatus.STATUS_EMPTY));
+        }
+        
+        // Setup Grid Sân (5 cột giống ảnh)
+        recyclerCourtsStatus.setLayoutManager(new GridLayoutManager(this, 5));
+        courtStatusAdapter = new CourtStatusAdapter(courtsStatusList);
+        recyclerCourtsStatus.setAdapter(courtStatusAdapter);
 
-                TimePickerDialog timePickerDialog = new TimePickerDialog(CourtDetailActivity.this,
-                        new TimePickerDialog.OnTimeSetListener() {
-                            @Override
-                            public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
-                                selectedTime = hourOfDay + ":" + String.format("%02d", minute);
-                                btnTime.setText("Time: " + selectedTime);
-                            }
-                        }, hour, minute, true);
-                timePickerDialog.show();
-            }
-        });
-
-        // Setup Confirm Booking
-        btnConfirm.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (selectedDate.isEmpty() || selectedTime.isEmpty()) {
-                    Toast.makeText(CourtDetailActivity.this, "Please select Date and Time", Toast.LENGTH_SHORT).show();
-                    return;
+        // Nút Xác nhận đặt sân
+        btnConfirm.setOnClickListener(v -> {
+            boolean hasSelectedTime = false;
+            String selectedT = "";
+            for (TimeSlot t : timeSlotsList) {
+                if (t.isSelected()) {
+                    hasSelectedTime = true;
+                    selectedT = t.getTime();
+                    break;
                 }
-                
-                sendBookingNotification();
-                
-                Toast.makeText(CourtDetailActivity.this, "Booking Successful!", Toast.LENGTH_SHORT).show();
-                finish(); // Close activity and return to Home
             }
+
+            if (!hasSelectedTime) {
+                Toast.makeText(this, "Vui lòng chọn giờ!", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            sendBookingNotification(selectedT);
+            tvListLabel.setText("Danh sách đặt lịch (1)\nBạn vừa đặt sân vào lúc " + selectedT);
+            Toast.makeText(this, "Xác nhận đặt sân thành công!", Toast.LENGTH_SHORT).show();
         });
+    }
+
+    private void randomizeCourtStatus() {
+        Random rnd = new Random();
+        for (CourtStatus c : courtsStatusList) {
+            // Tỉ lệ trống cao hơn để dễ nhìn
+            int status = rnd.nextInt(4); // 0, 1, 2, 3
+            if (status == 3) status = 0;
+            c.setStatus(status);
+        }
+        courtStatusAdapter.notifyDataSetChanged();
     }
 
     private void createNotificationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            CharSequence name = "Booking Notifications";
-            String description = "Channel for badminton booking confirmations";
-            int importance = NotificationManager.IMPORTANCE_DEFAULT;
-            NotificationChannel channel = new NotificationChannel(CHANNEL_ID, name, importance);
-            channel.setDescription(description);
-
-            NotificationManager notificationManager = getSystemService(NotificationManager.class);
-            if (notificationManager != null) {
-                notificationManager.createNotificationChannel(channel);
-            }
+            NotificationChannel channel = new NotificationChannel(CHANNEL_ID, "Booking Notifications", NotificationManager.IMPORTANCE_DEFAULT);
+            NotificationManager manager = getSystemService(NotificationManager.class);
+            if (manager != null) manager.createNotificationChannel(channel);
         }
     }
 
-    private void sendBookingNotification() {
-        String courtName = court != null ? court.getName() : "Court";
-        
+    private void sendBookingNotification(String time) {
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this, CHANNEL_ID)
-                .setSmallIcon(R.mipmap.ic_launcher_round) // Using default icon for now
+                .setSmallIcon(R.mipmap.ic_launcher_round)
                 .setContentTitle("Booking Confirmed!")
-                .setContentText("You booked " + courtName + " on " + selectedDate + " at " + selectedTime)
+                .setContentText("Bạn đã đặt sân thành công vào lúc " + time)
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT)
                 .setAutoCancel(true);
 
@@ -152,7 +144,7 @@ public class CourtDetailActivity extends AppCompatActivity {
         try {
             notificationManager.notify((int) System.currentTimeMillis(), builder.build());
         } catch (SecurityException e) {
-            e.printStackTrace(); // Handle missing permission or rejected permission
+            e.printStackTrace();
         }
     }
 }
