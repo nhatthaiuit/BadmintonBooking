@@ -60,7 +60,7 @@ public class HomeActivity extends AppCompatActivity {
         radioGroupBranches = findViewById(R.id.radioGroupBranches);
 
         ImageView imgLogout = findViewById(R.id.imgLogout);
-        ImageView imgHistory = findViewById(R.id.imgHistory);
+        Button imgHistory = findViewById(R.id.imgHistory);
 
         imgLogout.setOnClickListener(v -> {
             FirebaseAuth.getInstance().signOut();

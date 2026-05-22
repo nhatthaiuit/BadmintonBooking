@@ -30,13 +30,16 @@
                 android:textColor="@color/white"
                 android:textSize="20sp"
                 android:textStyle="bold" />
-                
-            <ImageView
+
+            <Button
                 android:id="@+id/imgHistory"
-                android:layout_width="28dp"
-                android:layout_height="28dp"
-                android:src="@android:drawable/ic_menu_recent_history"
-                app:tint="@color/white"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="History"
+                android:textColor="@android:color/white"
+                android:backgroundTint="#1976D2"
+                android:paddingHorizontal="12dp"
+                android:paddingVertical="4dp"
                 android:layout_marginEnd="16dp"/>
                 
             <ImageView
@@ -129,6 +132,9 @@
             android:textStyle="bold" />
             
         <Button
+
+
+
             android:id="@+id/btnNext"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
