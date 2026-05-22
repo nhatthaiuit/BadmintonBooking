@@ -11,7 +11,12 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.FirebaseFirestore;
+
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 public class CheckoutActivity extends AppCompatActivity {
 
@@ -39,7 +44,7 @@ public class CheckoutActivity extends AppCompatActivity {
 
         tvCheckoutBranch.setText("Branch: " + branch);
         tvCheckoutDate.setText("Date: " + date);
-        
+
         StringBuilder slotsStr = new StringBuilder();
         if (slots != null) {
             for (String s : slots) {
@@ -47,15 +52,39 @@ public class CheckoutActivity extends AppCompatActivity {
             }
         }
         tvCheckoutSlots.setText(slotsStr.toString().trim());
-        
+
         String formattedPrice = String.format("%,d", totalPrice).replace(',', '.') + " VND";
         tvCheckoutTotal.setText(formattedPrice);
 
         btnConfirmPayment.setOnClickListener(v -> {
-            sendBookingNotification(slots != null ? slots.size() : 0, formattedPrice);
-            Toast.makeText(this, "Payment Successful!", Toast.LENGTH_LONG).show();
-            finish();
+            saveBookingToFirestore(branch, date, totalPrice, slots, formattedPrice);
         });
+    }
+
+    private void saveBookingToFirestore(String branch, String date, long totalPrice, ArrayList<String> slots, String formattedPrice) {
+        String userId = FirebaseAuth.getInstance().getCurrentUser() != null
+                ? FirebaseAuth.getInstance().getCurrentUser().getUid()
+                : "";
+
+        Map<String, Object> booking = new HashMap<>();
+        booking.put("userId", userId);
+        booking.put("branch", branch);
+        booking.put("date", date);
+        booking.put("selectedTimes", slots);
+        booking.put("totalPrice", totalPrice);
+        booking.put("status", "confirmed");
+
+        FirebaseFirestore.getInstance()
+                .collection("bookings")
+                .add(booking)
+                .addOnSuccessListener(documentReference -> {
+                    sendBookingNotification(slots != null ? slots.size() : 0, formattedPrice);
+                    Toast.makeText(this, "Payment Successful!", Toast.LENGTH_LONG).show();
+                    finish();
+                })
+                .addOnFailureListener(e -> {
+                    Toast.makeText(this, "Booking failed: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                });
     }
 
     private void sendBookingNotification(int hours, String price) {
