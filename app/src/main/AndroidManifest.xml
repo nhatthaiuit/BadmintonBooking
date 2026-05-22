@@ -16,25 +16,19 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.BadmintonBooking">
         <activity
-            android:name=".CourtAdapter"
-            android:exported="false" />
-        <activity
-            android:name=".Court"
-            android:exported="false" />
-        <activity
             android:name=".RegisterActivity"
             android:exported="false" />
         <activity
             android:name=".MainActivity"
-            android:exported="false" />
-        <activity
-            android:name=".LoginActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+        </activity>
+        <activity
+            android:name=".LoginActivity"
+            android:exported="false">
         </activity>
         
         <activity
@@ -44,15 +38,9 @@
             android:name=".CheckoutActivity"
             android:exported="false" />
         <activity
-            android:name=".RegisterActivity"
-            android:exported="false" />
-        <activity
             android:name=".HomeActivity"
             android:exported="false" />
             
-        <activity
-            android:name=".CourtDetailActivity"
-            android:exported="false" />
             
         <service
             android:name=".SyncService"
