@@ -82,11 +82,33 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal">
-                    
-                    <RadioButton android:id="@+id/rbBranch1" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Branch 1 (Go Vap Dist)" android:textColor="@color/white" android:buttonTint="@color/white" android:checked="true" />
-                    <RadioButton android:id="@+id/rbBranch2" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Branch 2 (Binh Thanh Dist)" android:textColor="@color/white" android:buttonTint="@color/white" android:layout_marginStart="16dp" />
-                    <RadioButton android:id="@+id/rbBranch3" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Branch 3 (Dist 1)" android:textColor="@color/white" android:buttonTint="@color/white" android:layout_marginStart="16dp" />
-                    
+
+                    <RadioButton
+                        android:id="@+id/rbBranch1"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Go Vap"
+                        android:textColor="@color/white"
+                        android:buttonTint="@color/white"
+                        android:checked="true" />
+
+                    <RadioButton
+                        android:id="@+id/rbBranch2"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Binh Thanh"
+                        android:textColor="@color/white"
+                        android:buttonTint="@color/white"
+                        android:layout_marginStart="12dp" />
+
+                    <RadioButton
+                        android:id="@+id/rbBranch3"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Dist 1"
+                        android:textColor="@color/white"
+                        android:buttonTint="@color/white"
+                        android:layout_marginStart="12dp" />
                 </RadioGroup>
             </HorizontalScrollView>
         </LinearLayout>
