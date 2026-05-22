@@ -249,9 +249,9 @@ public class HomeActivity extends AppCompatActivity {
     private void checkBookingStatus(TextView tvCell, String courtName, String slotTime) {
 
         String selectedDate = tvSelectDate.getText().toString();
+        String currentSlotInfo = courtName + " (" + slotTime + ")";
 
         db.collection("bookings")
-                .whereEqualTo("courtName", courtName)
                 .whereEqualTo("date", selectedDate)
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
@@ -262,14 +262,14 @@ public class HomeActivity extends AppCompatActivity {
 
                         if (timesObj instanceof ArrayList) {
 
-                            ArrayList<String> bookedSlots =
-                                    (ArrayList<String>) timesObj;
+                            ArrayList<String> bookedSlots = (ArrayList<String>) timesObj;
 
-                            if (bookedSlots.contains(courtName + " (" + slotTime + ")")) {
+                            if (bookedSlots.contains(currentSlotInfo)) {
 
                                 tvCell.setBackgroundResource(R.drawable.bg_cell_booked);
-
                                 tvCell.setTag("BOOKED");
+                                tvCell.setOnClickListener(null);
+                                break;
                             }
                         }
                     }
