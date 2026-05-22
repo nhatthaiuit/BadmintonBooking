@@ -6,6 +6,8 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.NotificationCompat;
@@ -41,6 +43,8 @@ public class CheckoutActivity extends AppCompatActivity {
         String date = intent.getStringExtra("DATE");
         long totalPrice = intent.getLongExtra("TOTAL_PRICE", 0);
         ArrayList<String> slots = intent.getStringArrayListExtra("SELECTED_TIMES");
+
+
 
         tvCheckoutBranch.setText("Branch: " + branch);
         tvCheckoutDate.setText("Date: " + date);
