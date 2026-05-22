@@ -112,15 +112,7 @@ public class HomeActivity extends AppCompatActivity {
 
             Intent intent = new Intent(HomeActivity.this, CheckoutActivity.class);
 
-            String branchName = "Branch 1 (Go Vap Dist)";
-
-            int checkedId = radioGroupBranches.getCheckedRadioButtonId();
-
-            if (checkedId == R.id.rbBranch2) {
-                branchName = "Branch 2 (Binh Thanh Dist)";
-            } else if (checkedId == R.id.rbBranch3) {
-                branchName = "Branch 3 (Dist 1)";
-            }
+            String branchName = getSelectedBranchName();
 
             intent.putExtra("BRANCH", branchName);
             intent.putExtra("DATE", tvSelectDate.getText().toString());
@@ -137,6 +129,18 @@ public class HomeActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         generateTimetableMatrix();
+    }
+
+    private String getSelectedBranchName() {
+        int checkedId = radioGroupBranches.getCheckedRadioButtonId();
+
+        if (checkedId == R.id.rbBranch2) {
+            return "Branch 2 (Binh Thanh Dist)";
+        } else if (checkedId == R.id.rbBranch3) {
+            return "Branch 3 (Dist 1)";
+        }
+
+        return "Branch 1 (Go Vap Dist)";
     }
 
     private void generateTimetableMatrix() {
@@ -249,10 +253,13 @@ public class HomeActivity extends AppCompatActivity {
     private void checkBookingStatus(TextView tvCell, String courtName, String slotTime) {
 
         String selectedDate = tvSelectDate.getText().toString();
+        String selectedBranch = getSelectedBranchName();
         String currentSlotInfo = courtName + " (" + slotTime + ")";
 
         db.collection("bookings")
+                .whereEqualTo("branchName", selectedBranch)
                 .whereEqualTo("date", selectedDate)
+                .whereEqualTo("status", "confirmed")
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
 
