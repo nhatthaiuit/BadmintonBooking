@@ -20,4 +20,16 @@ public class Court implements Serializable {
     public void setPricePerHour(double pricePerHour) { this.pricePerHour = pricePerHour; }
     public String getImageUrl() { return imageUrl; }
     public void setImageUrl(String imageUrl) { this.imageUrl = imageUrl; }
+    
+    // Tương thích với code backend của Tuấn
+    public String getLocation() { return address; }
+    public void setLocation(String location) { this.address = location; }
+    public String getPrice() { return String.valueOf((int)pricePerHour); }
+    public void setPrice(String price) {
+        try {
+            this.pricePerHour = Double.parseDouble(price);
+        } catch (NumberFormatException e) {
+            this.pricePerHour = 0;
+        }
+    }
 }
