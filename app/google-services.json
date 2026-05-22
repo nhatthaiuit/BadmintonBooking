@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "192431282596",
+    "project_id": "badminton-8ab3d",
+    "storage_bucket": "badminton-8ab3d.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:192431282596:android:6507489168be308b1ac931",
+        "android_client_info": {
+          "package_name": "com.example.badmintonbooking"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCbUr84FBfglcRTNzTFOLEEwhel9kE_Qko"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
