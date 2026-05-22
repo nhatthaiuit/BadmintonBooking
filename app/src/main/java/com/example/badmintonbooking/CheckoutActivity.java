@@ -72,7 +72,7 @@ public class CheckoutActivity extends AppCompatActivity {
 
         Map<String, Object> booking = new HashMap<>();
         booking.put("userId", userId);
-        booking.put("branch", branch);
+        booking.put("branchName", branch);
         booking.put("date", date);
         booking.put("selectedTimes", slots);
         booking.put("totalPrice", totalPrice);

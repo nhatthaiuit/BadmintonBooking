@@ -112,14 +112,14 @@ public class HomeActivity extends AppCompatActivity {
 
             Intent intent = new Intent(HomeActivity.this, CheckoutActivity.class);
 
-            String branchName = "Court 1";
+            String branchName = "Branch 1 (Go Vap Dist)";
 
             int checkedId = radioGroupBranches.getCheckedRadioButtonId();
 
             if (checkedId == R.id.rbBranch2) {
-                branchName = "Court 2";
+                branchName = "Branch 2 (Binh Thanh Dist)";
             } else if (checkedId == R.id.rbBranch3) {
-                branchName = "Court 3";
+                branchName = "Branch 3 (Dist 1)";
             }
 
             intent.putExtra("BRANCH", branchName);
