@@ -99,6 +99,15 @@ public class HomeActivity extends AppCompatActivity {
                     day
             );
 
+// Không cho chọn ngày trước hôm nay
+            Calendar minDate = Calendar.getInstance();
+            minDate.set(Calendar.HOUR_OF_DAY, 0);
+            minDate.set(Calendar.MINUTE, 0);
+            minDate.set(Calendar.SECOND, 0);
+            minDate.set(Calendar.MILLISECOND, 0);
+
+            datePickerDialog.getDatePicker().setMinDate(minDate.getTimeInMillis());
+
             datePickerDialog.show();
         });
 
