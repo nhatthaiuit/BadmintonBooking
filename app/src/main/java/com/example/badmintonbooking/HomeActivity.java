@@ -17,10 +17,12 @@ import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashMap;
 
 public class HomeActivity extends AppCompatActivity {
 
@@ -34,8 +36,9 @@ public class HomeActivity extends AppCompatActivity {
     private final long PRICE_PER_HOUR = 100000;
 
     private FirebaseFirestore db;
+    private ListenerRegistration bookingListener;
 
-    private String[] timeSlots = {
+    private final String[] timeSlots = {
             "05:00\n-\n06:00", "06:00\n-\n07:00", "07:00\n-\n08:00", "08:00\n-\n09:00",
             "09:00\n-\n10:00", "10:00\n-\n11:00", "11:00\n-\n12:00", "12:00\n-\n13:00",
             "13:00\n-\n14:00", "14:00\n-\n15:00", "15:00\n-\n16:00", "16:00\n-\n17:00",
@@ -43,8 +46,13 @@ public class HomeActivity extends AppCompatActivity {
             "21:00\n-\n22:00"
     };
 
-    private int numCourts = 7;
-    private ArrayList<String> selectedTimeInfoList = new ArrayList<>();
+    private final int numCourts = 7;
+
+    private final ArrayList<String> selectedTimeInfoList = new ArrayList<>();
+    private final ArrayList<TextView> allCells = new ArrayList<>();
+    private final HashMap<TextView, String> cellSlotMap = new HashMap<>();
+
+    private int refreshVersion = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,7 +72,6 @@ public class HomeActivity extends AppCompatActivity {
 
         imgLogout.setOnClickListener(v -> {
             FirebaseAuth.getInstance().signOut();
-
             startActivity(new Intent(HomeActivity.this, MainActivity.class));
             finish();
         });
@@ -83,13 +90,9 @@ public class HomeActivity extends AppCompatActivity {
             DatePickerDialog datePickerDialog = new DatePickerDialog(
                     HomeActivity.this,
                     (view, year1, monthOfYear, dayOfMonth) -> {
-
                         String date = dayOfMonth + "/" + (monthOfYear + 1) + "/" + year1;
-
                         tvSelectDate.setText(date);
-
-                        generateTimetableMatrix();
-
+                        refreshSlotsForSelectedDate();
                     },
                     year,
                     month,
@@ -100,11 +103,10 @@ public class HomeActivity extends AppCompatActivity {
         });
 
         radioGroupBranches.setOnCheckedChangeListener((group, checkedId) -> {
-            generateTimetableMatrix();
+            refreshSlotsForSelectedDate();
         });
 
         btnNext.setOnClickListener(v -> {
-
             if (selectedHours == 0) {
                 Toast.makeText(this, "Please select at least 1 hour!", Toast.LENGTH_SHORT).show();
                 return;
@@ -112,9 +114,7 @@ public class HomeActivity extends AppCompatActivity {
 
             Intent intent = new Intent(HomeActivity.this, CheckoutActivity.class);
 
-            String branchName = getSelectedBranchName();
-
-            intent.putExtra("BRANCH", branchName);
+            intent.putExtra("BRANCH", getSelectedBranchName());
             intent.putExtra("DATE", tvSelectDate.getText().toString());
             intent.putExtra("TOTAL_PRICE", totalPrice);
             intent.putStringArrayListExtra("SELECTED_TIMES", selectedTimeInfoList);
@@ -122,13 +122,23 @@ public class HomeActivity extends AppCompatActivity {
             startActivity(intent);
         });
 
-        generateTimetableMatrix();
+        refreshSlotsForSelectedDate();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        generateTimetableMatrix();
+        refreshSlotsForSelectedDate();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+        if (bookingListener != null) {
+            bookingListener.remove();
+            bookingListener = null;
+        }
     }
 
     private String getSelectedBranchName() {
@@ -143,36 +153,41 @@ public class HomeActivity extends AppCompatActivity {
         return "Branch 1 (Go Vap Dist)";
     }
 
-    private void generateTimetableMatrix() {
+    private String normalizeSlot(String slotTime) {
+        return slotTime.replace("\n", "");
+    }
 
-        tableLayoutMatrix.removeAllViews();
+    private void refreshSlotsForSelectedDate() {
+        refreshVersion++;
 
         selectedHours = 0;
         selectedTimeInfoList.clear();
-
         updateTotalUI();
+
+        generateEmptyTimetableMatrix();
+
+        listenBookedSlotsForCurrentDate(refreshVersion);
+    }
+
+    private void generateEmptyTimetableMatrix() {
+        tableLayoutMatrix.removeAllViews();
+        allCells.clear();
+        cellSlotMap.clear();
 
         TableRow headerRow = new TableRow(this);
 
         TextView tvEmpty = new TextView(this);
         tvEmpty.setPadding(16, 16, 16, 16);
-
         headerRow.addView(tvEmpty);
 
         for (String slot : timeSlots) {
-
             TextView tvTime = new TextView(this);
 
             tvTime.setText(slot);
-
             tvTime.setPadding(24, 16, 24, 16);
-
             tvTime.setGravity(Gravity.CENTER);
-
             tvTime.setTextColor(Color.parseColor("#0288D1"));
-
             tvTime.setTextSize(12f);
-
             tvTime.setBackgroundResource(R.drawable.bg_time_header);
 
             TableRow.LayoutParams params = new TableRow.LayoutParams(
@@ -181,7 +196,6 @@ public class HomeActivity extends AppCompatActivity {
             );
 
             params.setMargins(6, 6, 6, 6);
-
             tvTime.setLayoutParams(params);
 
             headerRow.addView(tvTime);
@@ -190,21 +204,15 @@ public class HomeActivity extends AppCompatActivity {
         tableLayoutMatrix.addView(headerRow);
 
         for (int i = 1; i <= numCourts; i++) {
-
             TableRow row = new TableRow(this);
 
             String courtName = "Court " + i;
 
             TextView tvCourt = new TextView(this);
-
             tvCourt.setText(courtName);
-
             tvCourt.setPadding(32, 24, 32, 24);
-
             tvCourt.setGravity(Gravity.CENTER);
-
             tvCourt.setTextColor(Color.WHITE);
-
             tvCourt.setBackgroundResource(R.drawable.bg_court_header);
 
             TableRow.LayoutParams courtParams = new TableRow.LayoutParams(
@@ -213,26 +221,24 @@ public class HomeActivity extends AppCompatActivity {
             );
 
             courtParams.setMargins(6, 6, 6, 6);
-
             tvCourt.setLayoutParams(courtParams);
 
             row.addView(tvCourt);
 
-            for (int j = 0; j < timeSlots.length; j++) {
-
-                String slotTime = timeSlots[j].replace("\n", "");
-
+            for (String slotTime : timeSlots) {
                 TextView tvCell = new TextView(this);
 
                 tvCell.setPadding(16, 24, 16, 24);
-
                 tvCell.setBackgroundResource(R.drawable.bg_cell_empty);
-
                 tvCell.setTag("EMPTY");
 
-                checkBookingStatus(tvCell, courtName, slotTime);
+                String slotClean = normalizeSlot(slotTime);
+                String slotInfo = courtName + " (" + slotClean + ")";
 
-                setCellClickListener(tvCell, courtName, slotTime);
+                cellSlotMap.put(tvCell, slotInfo);
+                allCells.add(tvCell);
+
+                setCellClickListener(tvCell, slotInfo);
 
                 TableRow.LayoutParams params = new TableRow.LayoutParams(
                         TableRow.LayoutParams.WRAP_CONTENT,
@@ -240,7 +246,6 @@ public class HomeActivity extends AppCompatActivity {
                 );
 
                 params.setMargins(6, 6, 6, 6);
-
                 tvCell.setLayoutParams(params);
 
                 row.addView(tvCell);
@@ -250,66 +255,91 @@ public class HomeActivity extends AppCompatActivity {
         }
     }
 
-    private void checkBookingStatus(TextView tvCell, String courtName, String slotTime) {
-
+    private void listenBookedSlotsForCurrentDate(int version) {
         String selectedDate = tvSelectDate.getText().toString();
         String selectedBranch = getSelectedBranchName();
-        String currentSlotInfo = courtName + " (" + slotTime + ")";
 
-        db.collection("bookings")
+        if (bookingListener != null) {
+            bookingListener.remove();
+            bookingListener = null;
+        }
+
+        bookingListener = db.collection("bookings")
                 .whereEqualTo("branchName", selectedBranch)
                 .whereEqualTo("date", selectedDate)
                 .whereEqualTo("status", "confirmed")
-                .get()
-                .addOnSuccessListener(queryDocumentSnapshots -> {
+                .addSnapshotListener((queryDocumentSnapshots, error) -> {
+                    if (error != null) {
+                        Toast.makeText(this, "Failed to refresh slots: " + error.getMessage(), Toast.LENGTH_LONG).show();
+                        return;
+                    }
+
+                    if (queryDocumentSnapshots == null) {
+                        return;
+                    }
+
+                    if (version != refreshVersion) {
+                        return;
+                    }
+
+                    ArrayList<String> bookedSlotList = new ArrayList<>();
 
                     for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
-
                         Object timesObj = document.get("selectedTimes");
 
                         if (timesObj instanceof ArrayList) {
+                            ArrayList<?> bookedSlots = (ArrayList<?>) timesObj;
 
-                            ArrayList<String> bookedSlots = (ArrayList<String>) timesObj;
-
-                            if (bookedSlots.contains(currentSlotInfo)) {
-
-                                tvCell.setBackgroundResource(R.drawable.bg_cell_booked);
-                                tvCell.setTag("BOOKED");
-                                tvCell.setOnClickListener(null);
-                                break;
+                            for (Object slot : bookedSlots) {
+                                if (slot != null) {
+                                    bookedSlotList.add(slot.toString());
+                                }
                             }
                         }
                     }
+
+                    selectedHours = 0;
+                    selectedTimeInfoList.clear();
+
+                    for (TextView cell : allCells) {
+                        String slotInfo = cellSlotMap.get(cell);
+
+                        if (slotInfo == null) {
+                            continue;
+                        }
+
+                        if (bookedSlotList.contains(slotInfo)) {
+                            cell.setBackgroundResource(R.drawable.bg_cell_booked);
+                            cell.setTag("BOOKED");
+                            cell.setOnClickListener(null);
+                        } else {
+                            cell.setBackgroundResource(R.drawable.bg_cell_empty);
+                            cell.setTag("EMPTY");
+                            setCellClickListener(cell, slotInfo);
+                        }
+                    }
+
+                    updateTotalUI();
                 });
     }
 
-    private void setCellClickListener(TextView cell, String courtName, String slotTime) {
-
+    private void setCellClickListener(TextView cell, String slotInfo) {
         cell.setOnClickListener(v -> {
-
             String currentTag = (String) v.getTag();
 
-            String info = courtName + " (" + slotTime + ")";
-
-            if (currentTag.equals("EMPTY")) {
-
+            if ("EMPTY".equals(currentTag)) {
                 v.setBackgroundResource(R.drawable.bg_cell_selected);
-
                 v.setTag("SELECTED");
 
                 selectedHours++;
+                selectedTimeInfoList.add(slotInfo);
 
-                selectedTimeInfoList.add(info);
-
-            } else if (currentTag.equals("SELECTED")) {
-
+            } else if ("SELECTED".equals(currentTag)) {
                 v.setBackgroundResource(R.drawable.bg_cell_empty);
-
                 v.setTag("EMPTY");
 
                 selectedHours--;
-
-                selectedTimeInfoList.remove(info);
+                selectedTimeInfoList.remove(slotInfo);
             }
 
             updateTotalUI();
@@ -317,7 +347,6 @@ public class HomeActivity extends AppCompatActivity {
     }
 
     private void updateTotalUI() {
-
         totalPrice = selectedHours * PRICE_PER_HOUR;
 
         String formattedPrice =

@@ -1,5 +1,6 @@
 package com.example.badmintonbooking;
 
+import android.app.AlertDialog;
 import android.os.Bundle;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
@@ -18,9 +19,14 @@ import java.util.ArrayList;
 public class HistoryActivity extends AppCompatActivity {
 
     private ArrayList<String> historyList;
+    private ArrayList<String> bookingIdList;
+    private ArrayList<String> statusList;
+
     private ArrayAdapter<String> adapter;
     private FirebaseFirestore db;
     private FirebaseAuth auth;
+
+    private ListView listView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,7 +34,7 @@ public class HistoryActivity extends AppCompatActivity {
         setContentView(R.layout.activity_history);
 
         ImageView imgBack = findViewById(R.id.imgBackHistory);
-        ListView listView = findViewById(R.id.listViewHistory);
+        listView = findViewById(R.id.listViewHistory);
 
         imgBack.setOnClickListener(v -> finish());
 
@@ -36,8 +42,27 @@ public class HistoryActivity extends AppCompatActivity {
         auth = FirebaseAuth.getInstance();
 
         historyList = new ArrayList<>();
+        bookingIdList = new ArrayList<>();
+        statusList = new ArrayList<>();
+
         adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, historyList);
         listView.setAdapter(adapter);
+
+        listView.setOnItemClickListener((parent, view, position, id) -> {
+            if (bookingIdList.isEmpty() || position >= bookingIdList.size()) {
+                return;
+            }
+
+            String bookingId = bookingIdList.get(position);
+            String status = statusList.get(position);
+
+            if ("cancelled".equalsIgnoreCase(status)) {
+                Toast.makeText(this, "This booking is already cancelled", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            showCancelDialog(bookingId);
+        });
 
         loadBookingHistory();
     }
@@ -55,8 +80,12 @@ public class HistoryActivity extends AppCompatActivity {
                 .get(Source.SERVER)
                 .addOnSuccessListener(queryDocumentSnapshots -> {
                     historyList.clear();
+                    bookingIdList.clear();
+                    statusList.clear();
 
                     for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
+                        String documentId = document.getId();
+
                         String branchName = document.getString("branchName");
                         if (branchName == null || branchName.isEmpty()) {
                             branchName = "Unknown Branch";
@@ -102,9 +131,12 @@ public class HistoryActivity extends AppCompatActivity {
                                         "Slots:\n" + timesText +
                                         "Total: " + formattedPrice + "\n" +
                                         "Payment: " + paymentMethod + "\n" +
-                                        "Status: " + status;
+                                        "Status: " + status + "\n\n" +
+                                        "Tap to cancel booking";
 
                         historyList.add(item);
+                        bookingIdList.add(documentId);
+                        statusList.add(status);
                     }
 
                     if (historyList.isEmpty()) {
@@ -115,6 +147,28 @@ public class HistoryActivity extends AppCompatActivity {
                 })
                 .addOnFailureListener(e -> {
                     Toast.makeText(this, "Failed to load history: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                });
+    }
+
+    private void showCancelDialog(String bookingId) {
+        new AlertDialog.Builder(this)
+                .setTitle("Cancel Booking")
+                .setMessage("Are you sure you want to cancel this booking?")
+                .setPositiveButton("Yes, cancel", (dialog, which) -> cancelBooking(bookingId))
+                .setNegativeButton("No", null)
+                .show();
+    }
+
+    private void cancelBooking(String bookingId) {
+        db.collection("bookings")
+                .document(bookingId)
+                .update("status", "cancelled")
+                .addOnSuccessListener(unused -> {
+                    Toast.makeText(this, "Booking cancelled", Toast.LENGTH_SHORT).show();
+                    loadBookingHistory();
+                })
+                .addOnFailureListener(e -> {
+                    Toast.makeText(this, "Cancel failed: " + e.getMessage(), Toast.LENGTH_LONG).show();
                 });
     }
 }
