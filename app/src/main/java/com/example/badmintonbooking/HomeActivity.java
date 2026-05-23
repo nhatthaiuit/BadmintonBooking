@@ -15,6 +15,9 @@ import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import android.app.AlertDialog;
+import android.net.Uri;
+
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.ListenerRegistration;
@@ -67,6 +70,10 @@ public class HomeActivity extends AppCompatActivity {
         tvAvailableInfo = findViewById(R.id.availableInfoBar);
         btnNext = findViewById(R.id.btnNext);
         radioGroupBranches = findViewById(R.id.radioGroupBranches);
+
+        findViewById(R.id.rbBranch1).setOnClickListener(v -> showBranchAddressDialog());
+        findViewById(R.id.rbBranch2).setOnClickListener(v -> showBranchAddressDialog());
+        findViewById(R.id.rbBranch3).setOnClickListener(v -> showBranchAddressDialog());
 
         ImageView imgLogout = findViewById(R.id.imgLogout);
         Button imgHistory = findViewById(R.id.imgHistory);
@@ -412,5 +419,35 @@ public class HomeActivity extends AppCompatActivity {
         tvTotalInfo.setText(
                 "Selected: " + selectedHours + " hours\nTotal: " + formattedPrice
         );
+    }
+
+
+
+    private String getSelectedBranchAddress() {
+        int checkedId = radioGroupBranches.getCheckedRadioButtonId();
+
+        if (checkedId == R.id.rbBranch2) {
+            return "123 Dien Bien Phu, Binh Thanh District, Ho Chi Minh City";
+        } else if (checkedId == R.id.rbBranch3) {
+            return "45 Nguyen Hue, District 1, Ho Chi Minh City";
+        }
+
+        return "789 Quang Trung, Go Vap District, Ho Chi Minh City";
+    }
+
+    private void showBranchAddressDialog() {
+        String branchName = getSelectedBranchName();
+        String address = getSelectedBranchAddress();
+
+        new AlertDialog.Builder(this)
+                .setTitle(branchName)
+                .setMessage("Address:\n\n" + address)
+                .setPositiveButton("Open Maps", (dialog, which) -> {
+                    Uri uri = Uri.parse("geo:0,0?q=" + Uri.encode(address));
+                    Intent mapIntent = new Intent(Intent.ACTION_VIEW, uri);
+                    startActivity(mapIntent);
+                })
+                .setNegativeButton("Close", null)
+                .show();
     }
 }
