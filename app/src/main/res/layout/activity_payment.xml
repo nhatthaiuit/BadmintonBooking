@@ -28,13 +28,6 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="24dp">
 
-        <RadioButton
-            android:id="@+id/rbCod"
-            android:text="Cash on Delivery"
-            android:textColor="@color/white"
-            android:buttonTint="@color/white"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
 
         <RadioButton
             android:id="@+id/rbBanking"
