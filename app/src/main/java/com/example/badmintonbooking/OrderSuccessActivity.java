@@ -24,7 +24,7 @@ public class OrderSuccessActivity extends Activity {
         long total = getIntent().getLongExtra("total", 0);
 
         tvPayment.setText("Payment Method: " + paymentMethod);
-        tvTotal.setText("Total Paid: VND " + total);
+        tvTotal.setText("Total Paid: VND" + total);
 
         btnBackHome.setOnClickListener(v -> {
             Intent intent = new Intent(OrderSuccessActivity.this, HomeActivity.class);

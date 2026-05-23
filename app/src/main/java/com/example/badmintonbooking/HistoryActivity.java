@@ -125,6 +125,10 @@ public class HistoryActivity extends AppCompatActivity {
                                 ? String.format("%,d", totalPrice).replace(',', '.') + " VND"
                                 : "0 VND";
 
+                        String actionText = "cancelled".equalsIgnoreCase(status)
+                                ? "This booking has been cancelled"
+                                : "Tap to cancel booking";
+
                         String item =
                                 "Branch: " + branchName + "\n" +
                                         "Date: " + date + "\n" +
@@ -132,7 +136,7 @@ public class HistoryActivity extends AppCompatActivity {
                                         "Total: " + formattedPrice + "\n" +
                                         "Payment: " + paymentMethod + "\n" +
                                         "Status: " + status + "\n\n" +
-                                        "Tap to cancel booking";
+                                        actionText;
 
                         historyList.add(item);
                         bookingIdList.add(documentId);
