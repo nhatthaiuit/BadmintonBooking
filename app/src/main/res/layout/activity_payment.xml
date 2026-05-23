@@ -1,65 +1,120 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:padding="24dp"
-    android:background="@color/black">
+    android:background="@color/background_light">
 
-    <TextView
-        android:text="Payment"
-        android:textSize="28sp"
-        android:textStyle="bold"
-        android:textColor="@color/white"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"/>
-
-    <TextView
-        android:id="@+id/tvTotal"
-        android:text="Total: $0"
-        android:textSize="20sp"
-        android:textColor="@color/white"
-        android:layout_marginTop="24dp"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"/>
-
-    <RadioGroup
-        android:id="@+id/paymentGroup"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="24dp">
+        android:orientation="vertical"
+        android:padding="24dp">
 
-
-        <RadioButton
-            android:id="@+id/rbBanking"
-            android:text="Banking Transfer"
-            android:textColor="@color/white"
-            android:buttonTint="@color/white"
+        <TextView
+            android:text="Payment"
+            android:textSize="30sp"
+            android:textStyle="bold"
+            android:textColor="@color/primary_dark"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
+            android:layout_height="wrap_content" />
 
-        <RadioButton
-            android:id="@+id/rbMomo"
-            android:text="Momo / E-wallet"
-            android:textColor="@color/white"
-            android:buttonTint="@color/white"
+        <TextView
+            android:text="Complete your booking payment"
+            android:textSize="15sp"
+            android:textColor="#666666"
+            android:layout_marginTop="6dp"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
+            android:layout_height="wrap_content" />
 
-        <RadioButton
-            android:id="@+id/rbCard"
-            android:text="Credit Card"
-            android:textColor="@color/white"
-            android:buttonTint="@color/white"
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="@drawable/bg_cell_empty"
+            android:padding="20dp"
+            android:layout_marginTop="28dp">
+
+            <TextView
+                android:text="Total Amount"
+                android:textSize="14sp"
+                android:textColor="#666666"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+            <TextView
+                android:id="@+id/tvTotal"
+                android:text="Total: 0 VND"
+                android:textSize="26sp"
+                android:textStyle="bold"
+                android:textColor="@color/primary_dark"
+                android:layout_marginTop="6dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+        </LinearLayout>
+
+        <TextView
+            android:text="Choose Payment Method"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:textColor="@color/primary_dark"
+            android:layout_marginTop="28dp"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
+            android:layout_height="wrap_content" />
 
-    </RadioGroup>
+        <RadioGroup
+            android:id="@+id/paymentGroup"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="14dp"
+            android:orientation="vertical">
 
-    <Button
-        android:id="@+id/btnPlaceOrder"
-        android:text="Place Order"
-        android:layout_marginTop="32dp"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
+            <RadioButton
+                android:id="@+id/rbBanking"
+                android:text="Banking Transfer"
+                android:textColor="@color/primary_dark"
+                android:textSize="16sp"
+                android:buttonTint="@color/primary"
+                android:background="@drawable/bg_cell_empty"
+                android:padding="16dp"
+                android:layout_marginBottom="12dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
 
-</LinearLayout>
+            <RadioButton
+                android:id="@+id/rbMomo"
+                android:text="Momo / E-wallet"
+                android:textColor="@color/primary_dark"
+                android:textSize="16sp"
+                android:buttonTint="@color/primary"
+                android:background="@drawable/bg_cell_empty"
+                android:padding="16dp"
+                android:layout_marginBottom="12dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+            <RadioButton
+                android:id="@+id/rbCard"
+                android:text="Credit Card"
+                android:textColor="@color/primary_dark"
+                android:textSize="16sp"
+                android:buttonTint="@color/primary"
+                android:background="@drawable/bg_cell_empty"
+                android:padding="16dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+        </RadioGroup>
+
+        <Button
+            android:id="@+id/btnPlaceOrder"
+            android:text="Place Order"
+            android:textAllCaps="false"
+            android:textSize="17sp"
+            android:textStyle="bold"
+            android:textColor="@color/white"
+            android:backgroundTint="@color/primary"
+            android:layout_marginTop="36dp"
+            android:layout_width="match_parent"
+            android:layout_height="54dp" />
+
+    </LinearLayout>
+</ScrollView>

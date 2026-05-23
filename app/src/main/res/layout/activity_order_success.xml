@@ -1,44 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:gravity="center"
-    android:padding="24dp"
-    android:background="@color/black">
+    android:padding="28dp"
+    android:background="@color/background_light">
+
+    <TextView
+        android:text="✓"
+        android:textSize="64sp"
+        android:textStyle="bold"
+        android:textColor="@color/primary"
+        android:gravity="center"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
 
     <TextView
         android:id="@+id/tvSuccess"
-        android:text="Order Placed Successfully!"
-        android:textSize="26sp"
+        android:text="Booking Successful!"
+        android:textSize="28sp"
         android:textStyle="bold"
-        android:textColor="@color/white"
+        android:textColor="@color/primary_dark"
         android:gravity="center"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"/>
-
-    <TextView
-        android:id="@+id/tvPayment"
-        android:text="Payment Method:"
-        android:textColor="@color/white"
-        android:textSize="18sp"
-        android:layout_marginTop="24dp"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"/>
-
-    <TextView
-        android:id="@+id/tvTotalSuccess"
-        android:text="Total Paid:"
-        android:textColor="@color/white"
-        android:textSize="18sp"
         android:layout_marginTop="12dp"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"/>
+        android:layout_height="wrap_content" />
+
+    <TextView
+        android:text="Your badminton court has been reserved."
+        android:textSize="15sp"
+        android:textColor="#666666"
+        android:gravity="center"
+        android:layout_marginTop="8dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:background="@drawable/bg_cell_empty"
+        android:padding="20dp"
+        android:layout_marginTop="32dp">
+
+        <TextView
+            android:id="@+id/tvPayment"
+            android:text="Payment Method:"
+            android:textColor="@color/primary_dark"
+            android:textSize="17sp"
+            android:textStyle="bold"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <TextView
+            android:id="@+id/tvTotalSuccess"
+            android:text="Total Paid:"
+            android:textColor="@color/primary_dark"
+            android:textSize="17sp"
+            android:textStyle="bold"
+            android:layout_marginTop="12dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+    </LinearLayout>
 
     <Button
         android:id="@+id/btnBackHome"
         android:text="Back to Home"
+        android:textAllCaps="false"
+        android:textSize="17sp"
+        android:textStyle="bold"
+        android:textColor="@color/white"
+        android:backgroundTint="@color/primary"
         android:layout_marginTop="32dp"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
+        android:layout_height="54dp" />
 
 </LinearLayout>
