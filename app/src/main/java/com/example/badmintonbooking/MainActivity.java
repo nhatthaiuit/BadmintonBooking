@@ -65,7 +65,7 @@ public class MainActivity extends AppCompatActivity {
                         finish();
                     })
                     .addOnFailureListener(e -> {
-                        Toast.makeText(this, "Login failed: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                        Toast.makeText(this, "Incorrect phone number or password. Please try again.", Toast.LENGTH_LONG).show();
                     });
         });
 

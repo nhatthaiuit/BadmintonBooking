@@ -83,7 +83,12 @@ public class RegisterActivity extends AppCompatActivity {
                                 });
                     })
                     .addOnFailureListener(e -> {
-                        Toast.makeText(this, "Registration failed: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                        String errorMsg = e.getMessage() != null ? e.getMessage() : "";
+                        if (errorMsg.contains("The email address is already in use")) {
+                            Toast.makeText(this, "This phone number is already registered.", Toast.LENGTH_LONG).show();
+                        } else {
+                            Toast.makeText(this, "Registration failed. Please check your information.", Toast.LENGTH_LONG).show();
+                        }
                     });
         });
     }
