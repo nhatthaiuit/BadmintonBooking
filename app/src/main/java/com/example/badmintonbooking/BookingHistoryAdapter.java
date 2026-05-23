@@ -49,12 +49,12 @@ public class BookingHistoryAdapter extends RecyclerView.Adapter<BookingHistoryAd
         holder.tvStatus.setText(booking.getStatus().toUpperCase());
 
         if ("cancelled".equalsIgnoreCase(booking.getStatus())) {
-            holder.tvStatus.setTextColor(Color.parseColor("#E53935")); // Red
-            holder.tvStatus.setBackgroundResource(R.drawable.bg_cell_empty); // Or any generic grey border
+            holder.tvStatus.setTextColor(Color.parseColor("#E53935")); // Red text
+            holder.tvStatus.setBackgroundResource(R.drawable.bg_status_cancelled); // Light Red bg
             holder.btnCancel.setVisibility(View.GONE);
         } else {
-            holder.tvStatus.setTextColor(Color.parseColor("#388E3C")); // Green
-            holder.tvStatus.setBackgroundResource(R.drawable.bg_cell_booked); // Reusing green booked background for Confirmed
+            holder.tvStatus.setTextColor(Color.parseColor("#388E3C")); // Green text
+            holder.tvStatus.setBackgroundResource(R.drawable.bg_status_confirmed); // Light Green bg
             holder.btnCancel.setVisibility(View.VISIBLE);
         }
 
