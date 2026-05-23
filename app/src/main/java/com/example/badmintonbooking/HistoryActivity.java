@@ -2,31 +2,30 @@ package com.example.badmintonbooking;
 
 import android.app.AlertDialog;
 import android.os.Bundle;
-import android.widget.ArrayAdapter;
 import android.widget.ImageView;
-import android.widget.ListView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.Source;
 
 import java.util.ArrayList;
+import java.util.List;
 
-public class HistoryActivity extends AppCompatActivity {
+public class HistoryActivity extends AppCompatActivity implements BookingHistoryAdapter.OnCancelClickListener {
 
-    private ArrayList<String> historyList;
-    private ArrayList<String> bookingIdList;
-    private ArrayList<String> statusList;
-
-    private ArrayAdapter<String> adapter;
+    private List<BookingHistory> historyList;
+    private BookingHistoryAdapter adapter;
     private FirebaseFirestore db;
     private FirebaseAuth auth;
 
-    private ListView listView;
+    private RecyclerView recyclerView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,7 +33,9 @@ public class HistoryActivity extends AppCompatActivity {
         setContentView(R.layout.activity_history);
 
         ImageView imgBack = findViewById(R.id.imgBackHistory);
-        listView = findViewById(R.id.listViewHistory);
+        recyclerView = findViewById(R.id.recyclerViewHistory);
+        
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
         imgBack.setOnClickListener(v -> finish());
 
@@ -42,27 +43,8 @@ public class HistoryActivity extends AppCompatActivity {
         auth = FirebaseAuth.getInstance();
 
         historyList = new ArrayList<>();
-        bookingIdList = new ArrayList<>();
-        statusList = new ArrayList<>();
-
-        adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, historyList);
-        listView.setAdapter(adapter);
-
-        listView.setOnItemClickListener((parent, view, position, id) -> {
-            if (bookingIdList.isEmpty() || position >= bookingIdList.size()) {
-                return;
-            }
-
-            String bookingId = bookingIdList.get(position);
-            String status = statusList.get(position);
-
-            if ("cancelled".equalsIgnoreCase(status)) {
-                Toast.makeText(this, "This booking is already cancelled", Toast.LENGTH_SHORT).show();
-                return;
-            }
-
-            showCancelDialog(bookingId);
-        });
+        adapter = new BookingHistoryAdapter(this, historyList, this);
+        recyclerView.setAdapter(adapter);
 
         loadBookingHistory();
     }
@@ -77,11 +59,10 @@ public class HistoryActivity extends AppCompatActivity {
 
         db.collection("bookings")
                 .whereEqualTo("userId", userId)
+                // Optionally sort by date descending if stored properly
                 .get(Source.SERVER)
                 .addOnSuccessListener(queryDocumentSnapshots -> {
                     historyList.clear();
-                    bookingIdList.clear();
-                    statusList.clear();
 
                     for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
                         String documentId = document.getId();
@@ -97,6 +78,9 @@ public class HistoryActivity extends AppCompatActivity {
                         }
 
                         Long totalPrice = document.getLong("totalPrice");
+                        String formattedPrice = totalPrice != null
+                                ? String.format("%,d", totalPrice).replace(',', '.') + " VND"
+                                : "0 VND";
 
                         String paymentMethod = document.getString("paymentMethod");
                         if (paymentMethod == null || paymentMethod.isEmpty()) {
@@ -113,38 +97,26 @@ public class HistoryActivity extends AppCompatActivity {
 
                         if (selectedTimesObj instanceof ArrayList) {
                             ArrayList<?> selectedTimes = (ArrayList<?>) selectedTimesObj;
-
                             for (Object time : selectedTimes) {
-                                timesText.append("- ").append(time.toString()).append("\n");
+                                timesText.append("• ").append(time.toString()).append("\n");
                             }
                         } else {
-                            timesText.append("No slots recorded\n");
+                            timesText.append("No slots recorded");
                         }
 
-                        String formattedPrice = totalPrice != null
-                                ? String.format("%,d", totalPrice).replace(',', '.') + " VND"
-                                : "0 VND";
-
-                        String actionText = "cancelled".equalsIgnoreCase(status)
-                                ? "This booking has been cancelled"
-                                : "Tap to cancel booking";
-
-                        String item =
-                                "Branch: " + branchName + "\n" +
-                                        "Date: " + date + "\n" +
-                                        "Slots:\n" + timesText +
-                                        "Total: " + formattedPrice + "\n" +
-                                        "Payment: " + paymentMethod + "\n" +
-                                        "Status: " + status + "\n\n" +
-                                        actionText;
-
-                        historyList.add(item);
-                        bookingIdList.add(documentId);
-                        statusList.add(status);
+                        historyList.add(new BookingHistory(
+                                documentId,
+                                branchName,
+                                date,
+                                timesText.toString().trim(),
+                                paymentMethod,
+                                status,
+                                formattedPrice
+                        ));
                     }
 
                     if (historyList.isEmpty()) {
-                        historyList.add("No booking history yet.");
+                        Toast.makeText(this, "No booking history yet.", Toast.LENGTH_SHORT).show();
                     }
 
                     adapter.notifyDataSetChanged();
@@ -154,11 +126,12 @@ public class HistoryActivity extends AppCompatActivity {
                 });
     }
 
-    private void showCancelDialog(String bookingId) {
+    @Override
+    public void onCancelClick(BookingHistory booking) {
         new AlertDialog.Builder(this)
                 .setTitle("Cancel Booking")
-                .setMessage("Are you sure you want to cancel this booking?")
-                .setPositiveButton("Yes, cancel", (dialog, which) -> cancelBooking(bookingId))
+                .setMessage("Are you sure you want to cancel booking at " + booking.getBranchName() + " on " + booking.getDate() + "?")
+                .setPositiveButton("Yes, cancel", (dialog, which) -> cancelBooking(booking.getBookingId()))
                 .setNegativeButton("No", null)
                 .show();
     }
@@ -169,7 +142,7 @@ public class HistoryActivity extends AppCompatActivity {
                 .update("status", "cancelled")
                 .addOnSuccessListener(unused -> {
                     Toast.makeText(this, "Booking cancelled", Toast.LENGTH_SHORT).show();
-                    loadBookingHistory();
+                    loadBookingHistory(); // Reload to refresh UI
                 })
                 .addOnFailureListener(e -> {
                     Toast.makeText(this, "Cancel failed: " + e.getMessage(), Toast.LENGTH_LONG).show();
