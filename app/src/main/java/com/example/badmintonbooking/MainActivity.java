@@ -27,8 +27,6 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
 
-        Intent serviceIntent = new Intent(this, SyncService.class);
-        startService(serviceIntent);
 
         setContentView(R.layout.activity_main);
 

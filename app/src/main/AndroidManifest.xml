@@ -53,9 +53,7 @@
             android:name=".HomeActivity"
             android:exported="false" />
 
-        <service
-            android:name=".SyncService"
-            android:exported="false" />
+
 
     </application>
 
