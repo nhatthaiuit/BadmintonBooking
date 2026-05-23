@@ -15,6 +15,10 @@ import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
+
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.ListenerRegistration;
@@ -92,6 +96,7 @@ public class HomeActivity extends AppCompatActivity {
                     (view, year1, monthOfYear, dayOfMonth) -> {
                         String date = dayOfMonth + "/" + (monthOfYear + 1) + "/" + year1;
                         tvSelectDate.setText(date);
+
                         refreshSlotsForSelectedDate();
                     },
                     year,
@@ -130,6 +135,16 @@ public class HomeActivity extends AppCompatActivity {
 
             startActivity(intent);
         });
+
+        Calendar today = Calendar.getInstance();
+
+        int currentDay = today.get(Calendar.DAY_OF_MONTH);
+        int currentMonth = today.get(Calendar.MONTH) + 1;
+        int currentYear = today.get(Calendar.YEAR);
+
+        String todayDate = currentDay + "/" + currentMonth + "/" + currentYear;
+
+        tvSelectDate.setText(todayDate);
 
         refreshSlotsForSelectedDate();
     }
@@ -321,6 +336,12 @@ public class HomeActivity extends AppCompatActivity {
                             cell.setBackgroundResource(R.drawable.bg_cell_booked);
                             cell.setTag("BOOKED");
                             cell.setOnClickListener(null);
+
+                        } else if (isPastSlotToday(slotInfo)) {
+                            cell.setBackgroundColor(Color.LTGRAY);
+                            cell.setTag("PAST");
+                            cell.setOnClickListener(null);
+
                         } else {
                             cell.setBackgroundResource(R.drawable.bg_cell_empty);
                             cell.setTag("EMPTY");
@@ -355,6 +376,32 @@ public class HomeActivity extends AppCompatActivity {
         });
     }
 
+
+    private boolean isPastSlotToday(String slotInfo) {
+        String selectedDate = tvSelectDate.getText().toString();
+
+        Calendar today = Calendar.getInstance();
+        String todayDate = today.get(Calendar.DAY_OF_MONTH) + "/" +
+                (today.get(Calendar.MONTH) + 1) + "/" +
+                today.get(Calendar.YEAR);
+
+        if (!selectedDate.equals(todayDate)) {
+            return false;
+        }
+
+        try {
+            String timePart = slotInfo.substring(slotInfo.indexOf("(") + 1, slotInfo.indexOf("-"));
+            String[] parts = timePart.split(":");
+
+            int slotHour = Integer.parseInt(parts[0]);
+            int currentHour = today.get(Calendar.HOUR_OF_DAY);
+
+            return slotHour <= currentHour;
+
+        } catch (Exception e) {
+            return false;
+        }
+    }
     private void updateTotalUI() {
         totalPrice = selectedHours * PRICE_PER_HOUR;
 
