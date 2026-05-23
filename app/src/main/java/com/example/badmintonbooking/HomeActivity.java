@@ -15,10 +15,6 @@ import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Locale;
-
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.ListenerRegistration;
@@ -31,7 +27,7 @@ import java.util.HashMap;
 public class HomeActivity extends AppCompatActivity {
 
     private TableLayout tableLayoutMatrix;
-    private TextView tvTotalInfo, tvSelectDate;
+    private TextView tvTotalInfo, tvSelectDate, tvAvailableInfo;
     private Button btnNext;
     private RadioGroup radioGroupBranches;
 
@@ -68,6 +64,7 @@ public class HomeActivity extends AppCompatActivity {
         tableLayoutMatrix = findViewById(R.id.tableLayoutMatrix);
         tvTotalInfo = findViewById(R.id.tvTotalInfo);
         tvSelectDate = findViewById(R.id.tvSelectDate);
+        tvAvailableInfo = findViewById(R.id.availableInfoBar);
         btnNext = findViewById(R.id.btnNext);
         radioGroupBranches = findViewById(R.id.radioGroupBranches);
 
@@ -96,7 +93,6 @@ public class HomeActivity extends AppCompatActivity {
                     (view, year1, monthOfYear, dayOfMonth) -> {
                         String date = dayOfMonth + "/" + (monthOfYear + 1) + "/" + year1;
                         tvSelectDate.setText(date);
-
                         refreshSlotsForSelectedDate();
                     },
                     year,
@@ -104,7 +100,6 @@ public class HomeActivity extends AppCompatActivity {
                     day
             );
 
-// Không cho chọn ngày trước hôm nay
             Calendar minDate = Calendar.getInstance();
             minDate.set(Calendar.HOUR_OF_DAY, 0);
             minDate.set(Calendar.MINUTE, 0);
@@ -112,7 +107,6 @@ public class HomeActivity extends AppCompatActivity {
             minDate.set(Calendar.MILLISECOND, 0);
 
             datePickerDialog.getDatePicker().setMinDate(minDate.getTimeInMillis());
-
             datePickerDialog.show();
         });
 
@@ -137,12 +131,9 @@ public class HomeActivity extends AppCompatActivity {
         });
 
         Calendar today = Calendar.getInstance();
-
-        int currentDay = today.get(Calendar.DAY_OF_MONTH);
-        int currentMonth = today.get(Calendar.MONTH) + 1;
-        int currentYear = today.get(Calendar.YEAR);
-
-        String todayDate = currentDay + "/" + currentMonth + "/" + currentYear;
+        String todayDate = today.get(Calendar.DAY_OF_MONTH) + "/" +
+                (today.get(Calendar.MONTH) + 1) + "/" +
+                today.get(Calendar.YEAR);
 
         tvSelectDate.setText(todayDate);
 
@@ -189,7 +180,6 @@ public class HomeActivity extends AppCompatActivity {
         updateTotalUI();
 
         generateEmptyTimetableMatrix();
-
         listenBookedSlotsForCurrentDate(refreshVersion);
     }
 
@@ -325,6 +315,9 @@ public class HomeActivity extends AppCompatActivity {
                     selectedHours = 0;
                     selectedTimeInfoList.clear();
 
+                    int totalSlots = numCourts * timeSlots.length;
+                    int unavailableCount = 0;
+
                     for (TextView cell : allCells) {
                         String slotInfo = cellSlotMap.get(cell);
 
@@ -333,11 +326,15 @@ public class HomeActivity extends AppCompatActivity {
                         }
 
                         if (bookedSlotList.contains(slotInfo)) {
+                            unavailableCount++;
+
                             cell.setBackgroundResource(R.drawable.bg_cell_booked);
                             cell.setTag("BOOKED");
                             cell.setOnClickListener(null);
 
                         } else if (isPastSlotToday(slotInfo)) {
+                            unavailableCount++;
+
                             cell.setBackgroundColor(Color.LTGRAY);
                             cell.setTag("PAST");
                             cell.setOnClickListener(null);
@@ -348,6 +345,10 @@ public class HomeActivity extends AppCompatActivity {
                             setCellClickListener(cell, slotInfo);
                         }
                     }
+
+                    int availableCount = totalSlots - unavailableCount;
+
+                    tvAvailableInfo.setText("Available slots: " + availableCount + "/" + totalSlots);
 
                     updateTotalUI();
                 });
@@ -376,7 +377,6 @@ public class HomeActivity extends AppCompatActivity {
         });
     }
 
-
     private boolean isPastSlotToday(String slotInfo) {
         String selectedDate = tvSelectDate.getText().toString();
 
@@ -402,6 +402,7 @@ public class HomeActivity extends AppCompatActivity {
             return false;
         }
     }
+
     private void updateTotalUI() {
         totalPrice = selectedHours * PRICE_PER_HOUR;
 
