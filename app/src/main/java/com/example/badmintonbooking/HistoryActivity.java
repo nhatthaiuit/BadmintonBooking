@@ -10,7 +10,9 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.Source;
 
 import java.util.ArrayList;
 
@@ -51,25 +53,23 @@ public class HistoryActivity extends AppCompatActivity {
 
         db.collection("bookings")
                 .whereEqualTo("userId", userId)
-                .get()
+                .get(Source.SERVER)
                 .addOnSuccessListener(queryDocumentSnapshots -> {
                     historyList.clear();
 
                     for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
-                        String courtName = document.getString("courtName");
+                        String branchName = document.getString("branchName");
 
-                        if (courtName == null) {
-                            courtName = document.getString("branch");
+                        if (branchName == null) {
+                            branchName = "Unknown Branch";
                         }
 
-                        if (courtName == null) {
-                            courtName = "Unknown Court";
-                        }
                         String date = document.getString("date");
                         Long totalPrice = document.getLong("totalPrice");
+                        String paymentMethod = document.getString("paymentMethod");
+                        String status = document.getString("status");
 
                         Object selectedTimesObj = document.get("selectedTimes");
-
                         StringBuilder timesText = new StringBuilder();
 
                         if (selectedTimesObj instanceof ArrayList) {
@@ -85,10 +85,12 @@ public class HistoryActivity extends AppCompatActivity {
                                 : "0 VND";
 
                         String item =
-                                "Court: " + courtName + "\n" +
+                                "Branch: " + branchName + "\n" +
                                         "Date: " + date + "\n" +
                                         "Slots:\n" + timesText +
-                                        "Total: " + formattedPrice;
+                                        "Total: " + formattedPrice + "\n" +
+                                        "Payment: " + paymentMethod + "\n" +
+                                        "Status: " + status;
 
                         historyList.add(item);
                     }
@@ -100,7 +102,7 @@ public class HistoryActivity extends AppCompatActivity {
                     adapter.notifyDataSetChanged();
                 })
                 .addOnFailureListener(e -> {
-                    Toast.makeText(this, "Failed to load history: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, "Failed to load history: " + e.getMessage(), Toast.LENGTH_LONG).show();
                 });
     }
 }

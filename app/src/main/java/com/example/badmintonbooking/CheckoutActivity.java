@@ -61,49 +61,14 @@ public class CheckoutActivity extends AppCompatActivity {
         tvCheckoutTotal.setText(formattedPrice);
 
         btnConfirmPayment.setOnClickListener(v -> {
-            saveBookingToFirestore(branch, date, totalPrice, slots, formattedPrice);
+            Intent paymentIntent = new Intent(CheckoutActivity.this, PaymentActivity.class);
+            paymentIntent.putExtra("BRANCH", branch);
+            paymentIntent.putExtra("DATE", date);
+            paymentIntent.putExtra("TOTAL_PRICE", totalPrice);
+            paymentIntent.putStringArrayListExtra("SELECTED_TIMES", slots);
+            startActivity(paymentIntent);
         });
     }
 
-    private void saveBookingToFirestore(String branch, String date, long totalPrice, ArrayList<String> slots, String formattedPrice) {
-        String userId = FirebaseAuth.getInstance().getCurrentUser() != null
-                ? FirebaseAuth.getInstance().getCurrentUser().getUid()
-                : "";
 
-        Map<String, Object> booking = new HashMap<>();
-        booking.put("userId", userId);
-        booking.put("branchName", branch);
-        booking.put("date", date);
-        booking.put("selectedTimes", slots);
-        booking.put("totalPrice", totalPrice);
-        booking.put("status", "confirmed");
-
-        FirebaseFirestore.getInstance()
-                .collection("bookings")
-                .add(booking)
-                .addOnSuccessListener(documentReference -> {
-                    sendBookingNotification(slots != null ? slots.size() : 0, formattedPrice);
-                    Toast.makeText(this, "Payment Successful!", Toast.LENGTH_LONG).show();
-                    finish();
-                })
-                .addOnFailureListener(e -> {
-                    Toast.makeText(this, "Booking failed: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                });
-    }
-
-    private void sendBookingNotification(int hours, String price) {
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(this, CHANNEL_ID)
-                .setSmallIcon(R.mipmap.ic_launcher_round)
-                .setContentTitle("Booking Confirmed!")
-                .setContentText("You successfully booked " + hours + " slots. Total: " + price)
-                .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-                .setAutoCancel(true);
-
-        NotificationManagerCompat notificationManager = NotificationManagerCompat.from(this);
-        try {
-            notificationManager.notify((int) System.currentTimeMillis(), builder.build());
-        } catch (SecurityException e) {
-            e.printStackTrace();
-        }
-    }
 }
