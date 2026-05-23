@@ -10,7 +10,6 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.Source;
 
@@ -59,15 +58,26 @@ public class HistoryActivity extends AppCompatActivity {
 
                     for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
                         String branchName = document.getString("branchName");
-
-                        if (branchName == null) {
+                        if (branchName == null || branchName.isEmpty()) {
                             branchName = "Unknown Branch";
                         }
 
                         String date = document.getString("date");
+                        if (date == null || date.isEmpty()) {
+                            date = "Unknown Date";
+                        }
+
                         Long totalPrice = document.getLong("totalPrice");
+
                         String paymentMethod = document.getString("paymentMethod");
+                        if (paymentMethod == null || paymentMethod.isEmpty()) {
+                            paymentMethod = "Not recorded";
+                        }
+
                         String status = document.getString("status");
+                        if (status == null || status.isEmpty()) {
+                            status = "confirmed";
+                        }
 
                         Object selectedTimesObj = document.get("selectedTimes");
                         StringBuilder timesText = new StringBuilder();
@@ -78,6 +88,8 @@ public class HistoryActivity extends AppCompatActivity {
                             for (Object time : selectedTimes) {
                                 timesText.append("- ").append(time.toString()).append("\n");
                             }
+                        } else {
+                            timesText.append("No slots recorded\n");
                         }
 
                         String formattedPrice = totalPrice != null
