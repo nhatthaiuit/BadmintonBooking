@@ -53,6 +53,11 @@ public class RegisterActivity extends AppCompatActivity {
                 return;
             }
 
+            if (!NetworkUtils.isNetworkAvailable(this)) {
+                Toast.makeText(this, "No internet connection! Please check your network.", Toast.LENGTH_LONG).show();
+                return;
+            }
+
             String email = phone + "@badminton.local";
 
             auth.createUserWithEmailAndPassword(email, password)

@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.view.Gravity;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.RadioGroup;
 import android.widget.TableLayout;
 import android.widget.TableRow;
@@ -33,6 +34,7 @@ public class HomeActivity extends AppCompatActivity {
     private TextView tvTotalInfo, tvSelectDate, tvAvailableInfo;
     private Button btnNext;
     private RadioGroup radioGroupBranches;
+    private ProgressBar progressBarLoading;
 
     private int selectedHours = 0;
     private long totalPrice = 0;
@@ -70,6 +72,7 @@ public class HomeActivity extends AppCompatActivity {
         tvAvailableInfo = findViewById(R.id.availableInfoBar);
         btnNext = findViewById(R.id.btnNext);
         radioGroupBranches = findViewById(R.id.radioGroupBranches);
+        progressBarLoading = findViewById(R.id.progressBarLoading);
 
         findViewById(R.id.rbBranch1).setOnClickListener(v -> showBranchAddressDialog());
         findViewById(R.id.rbBranch2).setOnClickListener(v -> showBranchAddressDialog());
@@ -79,8 +82,14 @@ public class HomeActivity extends AppCompatActivity {
         Button imgHistory = findViewById(R.id.imgHistory);
 
         imgLogout.setOnClickListener(v -> {
+            // Clean logout
             FirebaseAuth.getInstance().signOut();
-            startActivity(new Intent(HomeActivity.this, MainActivity.class));
+            android.content.SharedPreferences sharedPreferences = getSharedPreferences("LoginPrefs", android.content.Context.MODE_PRIVATE);
+            sharedPreferences.edit().clear().apply();
+            
+            Intent intent = new Intent(HomeActivity.this, MainActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(intent);
             finish();
         });
 
@@ -285,11 +294,20 @@ public class HomeActivity extends AppCompatActivity {
             bookingListener = null;
         }
 
+        if (!NetworkUtils.isNetworkAvailable(this)) {
+            Toast.makeText(this, "No internet connection! Please check your network.", Toast.LENGTH_LONG).show();
+            return;
+        }
+
+        progressBarLoading.setVisibility(android.view.View.VISIBLE);
+
         bookingListener = db.collection("bookings")
                 .whereEqualTo("branchName", selectedBranch)
                 .whereEqualTo("date", selectedDate)
                 .whereEqualTo("status", "confirmed")
                 .addSnapshotListener((queryDocumentSnapshots, error) -> {
+                    progressBarLoading.setVisibility(android.view.View.GONE);
+                    
                     if (error != null) {
                         Toast.makeText(this, "Failed to refresh slots: " + error.getMessage(), Toast.LENGTH_LONG).show();
                         return;

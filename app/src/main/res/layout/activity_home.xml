@@ -187,6 +187,17 @@
         </HorizontalScrollView>
     </ScrollView>
 
+    <ProgressBar
+        android:id="@+id/progressBarLoading"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        android:indeterminateTint="@color/primary"
+        app:layout_constraintTop_toTopOf="@+id/matrixScrollView"
+        app:layout_constraintBottom_toBottomOf="@+id/matrixScrollView"
+        app:layout_constraintStart_toStartOf="@+id/matrixScrollView"
+        app:layout_constraintEnd_toEndOf="@+id/matrixScrollView" />
+
     <FrameLayout
         android:id="@+id/bannerCard"
         android:layout_width="0dp"
