@@ -10,9 +10,10 @@ public class AdminBooking {
     public long totalPrice;
     public String status;
     public String bookingCode;
+    public long timestamp;
 
     public AdminBooking(String id, String bookingCode, String branchName, String date,
-                        ArrayList<String> selectedTimes, long totalPrice, String status) {
+                        ArrayList<String> selectedTimes, long totalPrice, String status, long timestamp) {
         this.id = id;
         this.bookingCode = bookingCode;
         this.branchName = branchName;
@@ -20,5 +21,6 @@ public class AdminBooking {
         this.selectedTimes = selectedTimes;
         this.totalPrice = totalPrice;
         this.status = status;
+        this.timestamp = timestamp;
     }
 }

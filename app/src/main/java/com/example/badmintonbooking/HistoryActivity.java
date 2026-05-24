@@ -114,6 +114,20 @@ public class HistoryActivity extends AppCompatActivity implements BookingHistory
                             timesText.append("No slots recorded");
                         }
 
+                        long timestamp = 0;
+                        try {
+                            if (document.contains("createdAt") && document.get("createdAt") != null) {
+                                Object createdAtObj = document.get("createdAt");
+                                if (createdAtObj instanceof com.google.firebase.Timestamp) {
+                                    timestamp = ((com.google.firebase.Timestamp) createdAtObj).getSeconds();
+                                }
+                            } else if (bookingCode != null && bookingCode.startsWith("BK-")) {
+                                timestamp = Long.parseLong(bookingCode.substring(3));
+                            }
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+
                         historyList.add(new BookingHistory(
                                 documentId,
                                 bookingCode,
@@ -122,12 +136,13 @@ public class HistoryActivity extends AppCompatActivity implements BookingHistory
                                 timesText.toString().trim(),
                                 paymentMethod,
                                 status,
-                                formattedPrice
+                                formattedPrice,
+                                timestamp
                         ));
                     }
 
-                    // Sort by bookingCode descending (BK-timestamp)
-                    Collections.sort(historyList, (b1, b2) -> b2.getBookingCode().compareTo(b1.getBookingCode()));
+                    // Sort by timestamp descending
+                    Collections.sort(historyList, (b1, b2) -> Long.compare(b2.getTimestamp(), b1.getTimestamp()));
 
                     if (historyList.isEmpty()) {
                         Toast.makeText(this, "No booking history yet.", Toast.LENGTH_SHORT).show();

@@ -9,10 +9,11 @@ public class BookingHistory {
     private String paymentMethod;
     private String status;
     private String totalPriceFormatted;
+    private long timestamp;
 
     public BookingHistory(String bookingId, String bookingCode, String branchName, String date,
                           String slotsText, String paymentMethod, String status,
-                          String totalPriceFormatted) {
+                          String totalPriceFormatted, long timestamp) {
         this.bookingId = bookingId;
         this.bookingCode = bookingCode;
         this.branchName = branchName;
@@ -21,6 +22,11 @@ public class BookingHistory {
         this.paymentMethod = paymentMethod;
         this.status = status;
         this.totalPriceFormatted = totalPriceFormatted;
+        this.timestamp = timestamp;
+    }
+
+    public long getTimestamp() {
+        return timestamp;
     }
 
     public String getBookingId() {

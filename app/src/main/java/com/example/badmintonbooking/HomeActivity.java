@@ -93,6 +93,7 @@ public class HomeActivity extends AppCompatActivity {
             finish();
         });
 
+        // Click bình thường -> Vào Lịch sử
         imgHistory.setOnClickListener(v -> {
             startActivity(new Intent(HomeActivity.this, HistoryActivity.class));
         });

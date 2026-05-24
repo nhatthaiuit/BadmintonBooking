@@ -142,6 +142,20 @@ public class AdminActivity extends AppCompatActivity {
                             }
                         }
 
+                        long timestamp = 0;
+                        try {
+                            if (document.contains("createdAt") && document.get("createdAt") != null) {
+                                Object createdAtObj = document.get("createdAt");
+                                if (createdAtObj instanceof com.google.firebase.Timestamp) {
+                                    timestamp = ((com.google.firebase.Timestamp) createdAtObj).getSeconds();
+                                }
+                            } else if (bookingCode != null && bookingCode.startsWith("BK-")) {
+                                timestamp = Long.parseLong(bookingCode.substring(3));
+                            }
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+
                         AdminBooking booking = new AdminBooking(
                                 id,
                                 bookingCode,
@@ -149,7 +163,8 @@ public class AdminActivity extends AppCompatActivity {
                                 date,
                                 selectedTimes,
                                 totalPrice,
-                                status
+                                status,
+                                timestamp
                         );
 
                         fullBookingList.add(booking);
@@ -175,8 +190,8 @@ public class AdminActivity extends AppCompatActivity {
             }
         }
 
-        // Sort locally by booking code descending
-        Collections.sort(bookingList, (b1, b2) -> b2.bookingCode.compareTo(b1.bookingCode));
+        // Sort locally by timestamp descending
+        Collections.sort(bookingList, (b1, b2) -> Long.compare(b2.timestamp, b1.timestamp));
 
         adapter.notifyDataSetChanged();
     }
