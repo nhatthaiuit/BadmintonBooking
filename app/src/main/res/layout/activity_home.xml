@@ -31,26 +31,39 @@
                 android:textSize="20sp"
                 android:textStyle="bold" />
 
-            <Button
-                android:id="@+id/imgHistory"
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="History"
-                android:textColor="@android:color/white"
-                android:backgroundTint="#1976D2"
-                android:paddingHorizontal="12dp"
-                android:paddingVertical="4dp"
-                android:layout_marginEnd="16dp" />
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
 
-            <ImageView
-                android:id="@+id/imgLogout"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:padding="8dp"
-                android:layout_marginStart="8dp"
-                android:background="@drawable/bg_time_header"
-                android:src="@android:drawable/ic_lock_power_off"
-                app:tint="@color/black" />
+                <Button
+                    android:id="@+id/imgHistory"
+                    android:layout_width="wrap_content"
+                    android:layout_height="40dp"
+                    android:text="History"
+                    android:textAllCaps="false"
+                    android:textColor="@android:color/white"
+                    android:textStyle="bold"
+                    android:backgroundTint="#1976D2"
+                    android:paddingHorizontal="14dp"
+                    android:layout_marginEnd="10dp" />
+
+                <Button
+
+                    android:id="@+id/imgLogout"
+                    android:layout_marginTop="4dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="40dp"
+                    android:text="Logout"
+                    android:textAllCaps="false"
+                    android:textColor="@android:color/white"
+                    android:textStyle="bold"
+                    android:backgroundTint="#D32F2F"
+                    android:paddingHorizontal="14dp" />
+
+            </LinearLayout>
+
         </LinearLayout>
 
         <LinearLayout
@@ -110,6 +123,7 @@
                         android:textColor="@color/white"
                         android:buttonTint="@color/white"
                         android:layout_marginStart="12dp" />
+
                 </RadioGroup>
             </HorizontalScrollView>
         </LinearLayout>
@@ -161,6 +175,7 @@
                 android:text="Selected"
                 android:textColor="@color/white"
                 android:textSize="12sp" />
+
         </LinearLayout>
     </LinearLayout>
 
@@ -262,6 +277,7 @@
                 android:textColor="@color/white"
                 android:textSize="13sp"
                 android:layout_marginTop="4dp" />
+
         </LinearLayout>
     </FrameLayout>
 
@@ -308,6 +324,7 @@
             android:text="Next"
             android:textColor="@color/primary"
             app:backgroundTint="@color/white" />
+
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

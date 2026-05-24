@@ -86,6 +86,8 @@ public class HistoryActivity extends AppCompatActivity implements BookingHistory
                         if (paymentMethod == null || paymentMethod.isEmpty()) {
                             paymentMethod = "Not recorded";
                         }
+                        String bookingCode = document.getString("bookingCode");
+                        if (bookingCode == null) bookingCode = "No Code";
 
                         String status = document.getString("status");
                         if (status == null || status.isEmpty()) {
@@ -106,6 +108,7 @@ public class HistoryActivity extends AppCompatActivity implements BookingHistory
 
                         historyList.add(new BookingHistory(
                                 documentId,
+                                bookingCode,
                                 branchName,
                                 date,
                                 timesText.toString().trim(),

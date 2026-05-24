@@ -87,7 +87,10 @@ public class PaymentActivity extends AppCompatActivity {
             userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
         }
 
+        String bookingCode = "BK-" + System.currentTimeMillis();
+
         Map<String, Object> booking = new HashMap<>();
+        booking.put("bookingCode", bookingCode);
         booking.put("bookingId", bookingId);
         booking.put("userId", userId);
         booking.put("branchName", branch);
@@ -108,7 +111,7 @@ public class PaymentActivity extends AppCompatActivity {
 
                     if (task.isSuccessful()) {
                         Log.d(TAG, "SUCCESS: Booking saved to Firestore");
-                        Toast.makeText(this, "Payment Successful!", Toast.LENGTH_LONG).show();
+                        Toast.makeText(this, "Booking successful! Code: " + bookingCode, Toast.LENGTH_LONG).show();
 
                         Intent intent = new Intent(PaymentActivity.this, OrderSuccessActivity.class);
                         intent.putExtra("payment_method", paymentMethod);

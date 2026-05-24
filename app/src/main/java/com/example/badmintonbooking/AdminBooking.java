@@ -9,10 +9,12 @@ public class AdminBooking {
     public ArrayList<String> selectedTimes;
     public long totalPrice;
     public String status;
+    public String bookingCode;
 
-    public AdminBooking(String id, String branchName, String date,
+    public AdminBooking(String id, String bookingCode, String branchName, String date,
                         ArrayList<String> selectedTimes, long totalPrice, String status) {
         this.id = id;
+        this.bookingCode = bookingCode;
         this.branchName = branchName;
         this.date = date;
         this.selectedTimes = selectedTimes;

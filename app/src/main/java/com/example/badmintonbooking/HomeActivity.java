@@ -78,7 +78,7 @@ public class HomeActivity extends AppCompatActivity {
         findViewById(R.id.rbBranch2).setOnClickListener(v -> showBranchAddressDialog());
         findViewById(R.id.rbBranch3).setOnClickListener(v -> showBranchAddressDialog());
 
-        ImageView imgLogout = findViewById(R.id.imgLogout);
+        Button imgLogout = findViewById(R.id.imgLogout);
         Button imgHistory = findViewById(R.id.imgHistory);
 
         imgLogout.setOnClickListener(v -> {

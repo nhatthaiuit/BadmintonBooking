@@ -39,7 +39,10 @@ public class AdminBookingAdapter extends RecyclerView.Adapter<AdminBookingAdapte
         AdminBooking booking = bookings.get(position);
 
         holder.tvBranch.setText("Branch: " + booking.branchName);
-        holder.tvDate.setText("Date: " + booking.date);
+        holder.tvDate.setText(
+                "Booking Code: " + booking.bookingCode +
+                        "\nDate: " + booking.date
+        );
 
         StringBuilder slotsText = new StringBuilder();
         if (booking.selectedTimes != null) {
@@ -53,6 +56,7 @@ public class AdminBookingAdapter extends RecyclerView.Adapter<AdminBookingAdapte
         String formattedPrice = String.format("%,d", booking.totalPrice).replace(',', '.') + " VND";
         holder.tvTotal.setText("Total: " + formattedPrice);
         holder.tvStatus.setText("Status: " + booking.status);
+
 
         if ("cancelled".equals(booking.status)) {
             holder.btnCancel.setVisibility(View.GONE);

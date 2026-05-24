@@ -1,6 +1,8 @@
 package com.example.badmintonbooking;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.widget.Button;
 import android.widget.RadioGroup;
 import android.widget.Toast;
 
@@ -8,6 +10,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
@@ -17,11 +20,14 @@ public class AdminActivity extends AppCompatActivity {
 
     private RecyclerView recyclerAdminBookings;
     private RadioGroup radioGroupStatus;
+    private Button btnAdminLogout;
 
     private ArrayList<AdminBooking> bookingList;
     private AdminBookingAdapter adapter;
 
     private FirebaseFirestore db;
+    private FirebaseAuth auth;
+
     private String currentFilter = "all";
 
     @Override
@@ -30,9 +36,20 @@ public class AdminActivity extends AppCompatActivity {
         setContentView(R.layout.activity_admin);
 
         db = FirebaseFirestore.getInstance();
+        auth = FirebaseAuth.getInstance();
 
         recyclerAdminBookings = findViewById(R.id.recyclerAdminBookings);
         radioGroupStatus = findViewById(R.id.radioGroupStatus);
+        btnAdminLogout = findViewById(R.id.btnAdminLogout);
+
+        btnAdminLogout.setOnClickListener(v -> {
+            auth.signOut();
+
+            Intent intent = new Intent(AdminActivity.this, LoginActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(intent);
+            finish();
+        });
 
         bookingList = new ArrayList<>();
 
@@ -70,6 +87,10 @@ public class AdminActivity extends AppCompatActivity {
                         String branchName = document.getString("branchName");
                         String date = document.getString("date");
                         String status = document.getString("status");
+
+                        String bookingCode = document.getString("bookingCode");
+                        if (bookingCode == null) bookingCode = "No Code";
+
                         Long totalPriceLong = document.getLong("totalPrice");
 
                         if (branchName == null) branchName = "Unknown Branch";
@@ -96,6 +117,7 @@ public class AdminActivity extends AppCompatActivity {
 
                         AdminBooking booking = new AdminBooking(
                                 id,
+                                bookingCode,
                                 branchName,
                                 date,
                                 selectedTimes,

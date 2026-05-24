@@ -41,20 +41,23 @@ public class BookingHistoryAdapter extends RecyclerView.Adapter<BookingHistoryAd
         BookingHistory booking = historyList.get(position);
 
         holder.tvBranchName.setText(booking.getBranchName());
+
+        holder.tvBookingCode.setText("Booking Code: " + booking.getBookingCode());
+
         holder.tvDate.setText(booking.getDate());
         holder.tvSlots.setText(booking.getSlotsText());
         holder.tvPayment.setText(booking.getPaymentMethod());
         holder.tvPrice.setText(booking.getTotalPriceFormatted());
-        
+
         holder.tvStatus.setText(booking.getStatus().toUpperCase());
 
         if ("cancelled".equalsIgnoreCase(booking.getStatus())) {
-            holder.tvStatus.setTextColor(Color.parseColor("#E53935")); // Red text
-            holder.tvStatus.setBackgroundResource(R.drawable.bg_status_cancelled); // Light Red bg
+            holder.tvStatus.setTextColor(Color.parseColor("#E53935"));
+            holder.tvStatus.setBackgroundResource(R.drawable.bg_status_cancelled);
             holder.btnCancel.setVisibility(View.GONE);
         } else {
-            holder.tvStatus.setTextColor(Color.parseColor("#388E3C")); // Green text
-            holder.tvStatus.setBackgroundResource(R.drawable.bg_status_confirmed); // Light Green bg
+            holder.tvStatus.setTextColor(Color.parseColor("#388E3C"));
+            holder.tvStatus.setBackgroundResource(R.drawable.bg_status_confirmed);
             holder.btnCancel.setVisibility(View.VISIBLE);
         }
 
@@ -71,12 +74,14 @@ public class BookingHistoryAdapter extends RecyclerView.Adapter<BookingHistoryAd
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
-        TextView tvBranchName, tvStatus, tvDate, tvSlots, tvPayment, tvPrice;
+        TextView tvBranchName, tvBookingCode, tvStatus, tvDate, tvSlots, tvPayment, tvPrice;
         Button btnCancel;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
+
             tvBranchName = itemView.findViewById(R.id.tvBranchName);
+            tvBookingCode = itemView.findViewById(R.id.tvBookingCode);
             tvStatus = itemView.findViewById(R.id.tvStatus);
             tvDate = itemView.findViewById(R.id.tvDate);
             tvSlots = itemView.findViewById(R.id.tvSlots);
