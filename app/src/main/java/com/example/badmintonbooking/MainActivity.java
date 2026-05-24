@@ -22,8 +22,23 @@ public class MainActivity extends AppCompatActivity {
         auth = FirebaseAuth.getInstance();
 
         if (auth.getCurrentUser() != null) {
-            startActivity(new Intent(MainActivity.this, HomeActivity.class));
-            finish();
+            String userId = auth.getCurrentUser().getUid();
+
+            com.google.firebase.firestore.FirebaseFirestore.getInstance()
+                    .collection("users")
+                    .document(userId)
+                    .get()
+                    .addOnSuccessListener(documentSnapshot -> {
+                        String role = documentSnapshot.getString("role");
+
+                        if ("admin".equals(role)) {
+                            startActivity(new Intent(MainActivity.this, AdminActivity.class));
+                        } else {
+                            startActivity(new Intent(MainActivity.this, HomeActivity.class));
+                        }
+
+                        finish();
+                    });
             return;
         }
 
@@ -59,8 +74,27 @@ public class MainActivity extends AppCompatActivity {
             auth.signInWithEmailAndPassword(email, password)
                     .addOnSuccessListener(authResult -> {
                         Toast.makeText(this, "Login successful", Toast.LENGTH_SHORT).show();
-                        startActivity(new Intent(MainActivity.this, HomeActivity.class));
-                        finish();
+
+                        String userId = auth.getCurrentUser().getUid();
+
+                        com.google.firebase.firestore.FirebaseFirestore.getInstance()
+                                .collection("users")
+                                .document(userId)
+                                .get()
+                                .addOnSuccessListener(documentSnapshot -> {
+                                    String role = documentSnapshot.getString("role");
+
+                                    if ("admin".equals(role)) {
+                                        startActivity(new Intent(MainActivity.this, AdminActivity.class));
+                                    } else {
+                                        startActivity(new Intent(MainActivity.this, HomeActivity.class));
+                                    }
+
+                                    finish();
+                                })
+                                .addOnFailureListener(e -> {
+                                    Toast.makeText(this, "Failed to check role: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                                });
                     })
                     .addOnFailureListener(e -> {
                         Toast.makeText(this, "Incorrect phone number or password. Please try again.", Toast.LENGTH_LONG).show();
