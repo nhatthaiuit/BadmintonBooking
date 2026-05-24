@@ -45,7 +45,7 @@ public class AdminActivity extends AppCompatActivity {
         btnAdminLogout.setOnClickListener(v -> {
             auth.signOut();
 
-            Intent intent = new Intent(AdminActivity.this, LoginActivity.class);
+            Intent intent = new Intent(AdminActivity.this, MainActivity.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
             startActivity(intent);
             finish();
