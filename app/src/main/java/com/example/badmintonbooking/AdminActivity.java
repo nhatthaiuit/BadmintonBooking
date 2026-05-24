@@ -10,25 +10,36 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.text.Editable;
+import android.text.TextWatcher;
+import android.widget.EditText;
+
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 public class AdminActivity extends AppCompatActivity {
 
     private RecyclerView recyclerAdminBookings;
     private RadioGroup radioGroupStatus;
     private Button btnAdminLogout;
+    private EditText etSearchCode;
 
+    private List<AdminBooking> fullBookingList;
     private ArrayList<AdminBooking> bookingList;
     private AdminBookingAdapter adapter;
 
     private FirebaseFirestore db;
     private FirebaseAuth auth;
+    private ListenerRegistration adminListener;
 
     private String currentFilter = "all";
+    private String currentSearchQuery = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,6 +52,7 @@ public class AdminActivity extends AppCompatActivity {
         recyclerAdminBookings = findViewById(R.id.recyclerAdminBookings);
         radioGroupStatus = findViewById(R.id.radioGroupStatus);
         btnAdminLogout = findViewById(R.id.btnAdminLogout);
+        etSearchCode = findViewById(R.id.etSearchCode);
 
         btnAdminLogout.setOnClickListener(v -> {
             auth.signOut();
@@ -51,7 +63,22 @@ public class AdminActivity extends AppCompatActivity {
             finish();
         });
 
+        fullBookingList = new ArrayList<>();
         bookingList = new ArrayList<>();
+
+        etSearchCode.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                currentSearchQuery = s.toString().trim().toLowerCase();
+                applyFilters();
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {}
+        });
 
         adapter = new AdminBookingAdapter(bookingList, booking -> {
             cancelBooking(booking.id);
@@ -69,17 +96,23 @@ public class AdminActivity extends AppCompatActivity {
                 currentFilter = "all";
             }
 
-            loadBookings();
+            applyFilters();
         });
 
         loadBookings();
     }
 
     private void loadBookings() {
-        db.collection("bookings")
-                .get()
-                .addOnSuccessListener(queryDocumentSnapshots -> {
-                    bookingList.clear();
+        adminListener = db.collection("bookings")
+                .addSnapshotListener((queryDocumentSnapshots, error) -> {
+                    if (error != null) {
+                        Toast.makeText(this, "Failed to load bookings: " + error.getMessage(), Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+
+                    if (queryDocumentSnapshots == null) return;
+
+                    fullBookingList.clear();
 
                     for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
                         String id = document.getId();
@@ -97,19 +130,13 @@ public class AdminActivity extends AppCompatActivity {
                         if (date == null) date = "Unknown Date";
                         if (status == null) status = "unknown";
 
-                        if (!currentFilter.equals("all") && !currentFilter.equals(status)) {
-                            continue;
-                        }
-
                         long totalPrice = totalPriceLong != null ? totalPriceLong : 0;
 
                         ArrayList<String> selectedTimes = new ArrayList<>();
-
                         Object selectedTimesObj = document.get("selectedTimes");
 
                         if (selectedTimesObj instanceof ArrayList) {
                             ArrayList<?> rawList = (ArrayList<?>) selectedTimesObj;
-
                             for (Object item : rawList) {
                                 selectedTimes.add(item.toString());
                             }
@@ -125,14 +152,33 @@ public class AdminActivity extends AppCompatActivity {
                                 status
                         );
 
-                        bookingList.add(booking);
+                        fullBookingList.add(booking);
                     }
 
-                    adapter.notifyDataSetChanged();
-                })
-                .addOnFailureListener(e -> {
-                    Toast.makeText(this, "Failed to load bookings: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                    applyFilters();
                 });
+    }
+
+    private void applyFilters() {
+        bookingList.clear();
+
+        for (AdminBooking booking : fullBookingList) {
+            // 1. Check status filter
+            boolean matchesStatus = currentFilter.equals("all") || currentFilter.equals(booking.status);
+
+            // 2. Check search query
+            boolean matchesSearch = currentSearchQuery.isEmpty() ||
+                    booking.bookingCode.toLowerCase().contains(currentSearchQuery);
+
+            if (matchesStatus && matchesSearch) {
+                bookingList.add(booking);
+            }
+        }
+
+        // Sort locally by booking code descending
+        Collections.sort(bookingList, (b1, b2) -> b2.bookingCode.compareTo(b1.bookingCode));
+
+        adapter.notifyDataSetChanged();
     }
 
     private void cancelBooking(String bookingId) {
@@ -141,10 +187,19 @@ public class AdminActivity extends AppCompatActivity {
                 .update("status", "cancelled")
                 .addOnSuccessListener(unused -> {
                     Toast.makeText(this, "Booking cancelled", Toast.LENGTH_SHORT).show();
-                    loadBookings();
+                    // No need to reload, addSnapshotListener handles it
                 })
                 .addOnFailureListener(e -> {
                     Toast.makeText(this, "Cancel failed: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                 });
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (adminListener != null) {
+            adminListener.remove();
+            adminListener = null;
+        }
     }
 }

@@ -12,10 +12,12 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.Source;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class HistoryActivity extends AppCompatActivity implements BookingHistoryAdapter.OnCancelClickListener {
@@ -24,6 +26,7 @@ public class HistoryActivity extends AppCompatActivity implements BookingHistory
     private BookingHistoryAdapter adapter;
     private FirebaseFirestore db;
     private FirebaseAuth auth;
+    private ListenerRegistration historyListener;
 
     private RecyclerView recyclerView;
 
@@ -57,11 +60,16 @@ public class HistoryActivity extends AppCompatActivity implements BookingHistory
 
         String userId = auth.getCurrentUser().getUid();
 
-        db.collection("bookings")
+        historyListener = db.collection("bookings")
                 .whereEqualTo("userId", userId)
-                // Optionally sort by date descending if stored properly
-                .get(Source.SERVER)
-                .addOnSuccessListener(queryDocumentSnapshots -> {
+                .addSnapshotListener((queryDocumentSnapshots, error) -> {
+                    if (error != null) {
+                        Toast.makeText(this, "Failed to load history: " + error.getMessage(), Toast.LENGTH_LONG).show();
+                        return;
+                    }
+
+                    if (queryDocumentSnapshots == null) return;
+
                     historyList.clear();
 
                     for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
@@ -118,14 +126,14 @@ public class HistoryActivity extends AppCompatActivity implements BookingHistory
                         ));
                     }
 
+                    // Sort by bookingCode descending (BK-timestamp)
+                    Collections.sort(historyList, (b1, b2) -> b2.getBookingCode().compareTo(b1.getBookingCode()));
+
                     if (historyList.isEmpty()) {
                         Toast.makeText(this, "No booking history yet.", Toast.LENGTH_SHORT).show();
                     }
 
                     adapter.notifyDataSetChanged();
-                })
-                .addOnFailureListener(e -> {
-                    Toast.makeText(this, "Failed to load history: " + e.getMessage(), Toast.LENGTH_LONG).show();
                 });
     }
 
@@ -145,10 +153,19 @@ public class HistoryActivity extends AppCompatActivity implements BookingHistory
                 .update("status", "cancelled")
                 .addOnSuccessListener(unused -> {
                     Toast.makeText(this, "Booking cancelled", Toast.LENGTH_SHORT).show();
-                    loadBookingHistory(); // Reload to refresh UI
+                    // No need to reload, addSnapshotListener will handle it automatically
                 })
                 .addOnFailureListener(e -> {
                     Toast.makeText(this, "Cancel failed: " + e.getMessage(), Toast.LENGTH_LONG).show();
                 });
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (historyListener != null) {
+            historyListener.remove();
+            historyListener = null;
+        }
     }
 }

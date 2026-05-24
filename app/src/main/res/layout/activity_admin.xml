@@ -33,13 +33,18 @@
 
     </LinearLayout>
 
-    <TextView
+    <EditText
+        android:id="@+id/etSearchCode"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Booking Management"
-        android:textSize="15sp"
-        android:textColor="#666666"
-        android:layout_marginBottom="16dp" />
+        android:layout_height="50dp"
+        android:hint="Search by Booking Code (e.g., BK-...)"
+        android:paddingHorizontal="16dp"
+        android:background="@drawable/bg_time_header"
+        android:drawableStart="@android:drawable/ic_menu_search"
+        android:drawablePadding="8dp"
+        android:layout_marginBottom="16dp"
+        android:maxLines="1"
+        android:singleLine="true" />
 
     <RadioGroup
         android:id="@+id/radioGroupStatus"
