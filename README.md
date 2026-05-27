@@ -1,42 +1,72 @@
-# Badminton Booking System (Mobile Application)
+# Badminton Booking App 🏸
+**Seamless Booking, Zero Conflicts**
 
-## Overview
-This is a commercial-grade mobile application designed for badminton court owners and businesses to digitize their booking processes. The application provides a seamless, modern, and highly intuitive user interface for end-users to view court availability in real-time, select time slots via a 2D matrix, and proceed to secure checkout.
-
-## Architecture & Tech Stack
-- **Platform:** Android (Native Java)
-- **Minimum SDK:** API 24 (Android 7.0)
-- **Target SDK:** API 34 (Android 14)
-- **Design System:** Material Design Components, Custom Rounded UI (Anti-template design)
-- **Key Modules:**
-  - `HomeActivity`: Implements a 2D scrollable timetable matrix mimicking professional calendar software.
-  - `CheckoutActivity`: Order summarization and pre-payment confirmation.
-  - `SyncService`: Background service architecture for data synchronization.
-  - Push Notifications: Integrated local broadcast notifications (Android 13+ compliant).
-
-## Project Setup for Development Team
-To build and run this project:
-1. Clone the repository to your local machine.
-2. Open the project via **Android Studio** (Flamingo or later recommended).
-3. Allow Gradle to sync the dependencies.
-4. Run on a physical device or an Android Emulator (API 24+).
-
-## Backend Integration Requirements (Next Phase)
-For the incoming Backend Engineering team, the following modules require API integration to transition from the current offline client architecture to a fully connected cloud architecture:
-
-1. **Identity & Access Management (IAM):**
-   - Replace the local `SharedPreferences` session management in `MainActivity.java` and `RegisterActivity.java` with secure JWT-based REST APIs or Firebase Auth.
-
-2. **Real-time Availability Engine:**
-   - In `HomeActivity.java`, the `generateTimetableMatrix()` function currently utilizes offline mock generation. 
-   - **Task:** Implement an HTTP GET request to fetch the live master schedule (Branches, Courts, and Time-slot states: `EMPTY`, `BOOKED`, `PENDING`).
-
-3. **Payment & Checkout Gateway:**
-   - In `CheckoutActivity.java`, the `btnConfirmPayment` triggers a local success state.
-   - **Task:** Integrate a third-party payment SDK (e.g., VNPay, MoMo, Stripe) and send a POST request to the server to lock the booking in the database.
-
-4. **User Dashboard (History):**
-   - In `HistoryActivity.java`, map the `ListView` or `RecyclerView` adapter to a GET endpoint fetching the user's historical transaction records.
+A commercial-grade, real-time Android mobile application designed for badminton court owners and players. The system digitalizes the booking process with a seamless, zero-refresh user interface, completely eliminating double-booking conflicts and high data latency.
 
 ---
-*Confidential and Proprietary - Ready for Commercial Deployment*
+
+## 🌟 Key Features
+
+### 👤 For Users (Players)
+- **Real-time Timetable Matrix**: An intuitive 2D grid mimicking professional calendar software, allowing users to view and select courts by Time, Space, and Location.
+- **Zero-Refresh Synchronization**: Court statuses update instantly across all devices. If a court is booked or cancelled, the UI changes color (Empty/Booked/Selected) without requiring a page reload.
+- **Automated Past-Time Filtering**: The system automatically locks time slots that have already passed in the current day.
+- **Order History**: View all past and upcoming confirmed bookings in a standardized CardView list.
+
+### 👑 For Admins (Court Owners)
+- **Admin Dashboard**: A dedicated interface to manage all incoming bookings.
+- **Real-time Cancellation**: Admins can cancel bookings with a single click. The cancellation instantly frees up the "inventory" on the users' timetable matrix.
+- **Advanced Filtering**: Search by Booking Code (e.g., `BK-177...`) or filter by status (`All`, `Confirmed`, `Cancelled`).
+
+### 🛡 Core System Stability
+- **Robust Error Handling**: Proactive network interception (`NetworkUtils`) blocks offline API calls and displays friendly fallback alerts.
+- **App Stability**: Integrated with **Firebase Crashlytics** for automated crash reporting. Eliminates memory leaks via strict `onDestroy()` listener cleanups.
+
+---
+
+## 🛠 Architecture & Tech Stack
+
+### Client Layer (Frontend)
+- **Platform**: Android Native (Java)
+- **SDK**: Minimum API 24 (Android 7.0), Target API 34 (Android 14)
+- **UI/UX**: Standardized XML Layouts (`ConstraintLayout`, `RecyclerView`), elevation drop-shadows, and a state-driven color hierarchy.
+
+### Backend & Database (Firebase Core)
+- **Firebase Auth**: Secure user session management and credential handling.
+- **Cloud Firestore**: Real-time NoSQL database handling live data streams via `addSnapshotListener`.
+
+### Monitoring Layer
+- **Firebase Crashlytics**: System-wide stability monitoring and auto-reporting on physical devices.
+
+---
+
+## 🗄 Database Schema (Firestore)
+
+The system relies on a highly optimized NoSQL structure to minimize read costs:
+
+- **`users` Collection**: 
+  - Document ID: `userId` (UID from Firebase Auth)
+  - Fields: `name`, `phone`, `email`, `role` (`user` or `admin`).
+- **`bookings` Collection**: 
+  - Document ID: Auto-generated by Firestore
+  - Fields: `bookingId`, `userId`, `bookingCode`, `branchName`, `date`, `selectedTimes` (Array), `totalPrice`, `paymentMethod`, `status`, `createdAt` (Timestamp).
+
+---
+
+## 🚀 Setup & Installation
+
+1. **Clone the Repository**
+   ```bash
+   git clone https://github.com/nhatthaiuit/BadmintonBooking.git
+   ```
+2. **Open in Android Studio**
+   - Use Android Studio Flamingo or later.
+3. **Firebase Configuration**
+   - Ensure you have the `google-services.json` file placed in the `app/` directory (provided by the repository owner).
+4. **Build & Run**
+   - Allow Gradle to sync dependencies.
+   - Run on an Android Emulator or a physical device (API 24+).
+
+---
+*Developed by Ha Nhat Thai & Nguyen Khanh Tuan*
+*Platform: Android (Java) | Backend: Firebase*
